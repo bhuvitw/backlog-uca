@@ -9,6 +9,8 @@
   --accent-red-bg: #fdebec;
   --accent-blue: #2563eb;
   --accent-blue-bg: #eff6ff;
+  --accent-green-bg: #dcfce7;
+  --accent-green-text: #15803d;
 }
 
 * {
@@ -43,7 +45,6 @@ body {
   gap: 12px;
 }
 
-/* Active Users Indicator */
 .active-users-badge {
   position: relative;
   font-size: 12px;
@@ -110,7 +111,7 @@ body {
 }
 
 .sidebar {
-  width: 230px;
+  width: 250px;
   border-right: 1px solid var(--border-light);
   padding: 20px 12px;
   background: #fafafa;
@@ -129,12 +130,17 @@ body {
   list-style: none;
 }
 
+/* Tab Active Indicator Styling */
 .week-tab {
-  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
   border-radius: 4px;
   cursor: pointer;
   color: var(--text-muted);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  gap: 8px;
 }
 
 .week-tab:hover {
@@ -150,6 +156,19 @@ body {
 .week-tab.summary-tab {
   color: var(--accent-blue);
   font-weight: 600;
+}
+
+.tab-active-indicator {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent-green-text);
+  background: var(--accent-green-bg);
+  padding: 2px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Sidebar Add Week Form */

@@ -45,28 +45,40 @@ const DEFAULT_SYLLABUS = {
   ]
 };
 
-// Update Heartbeat for Active Presence
+// Update Heartbeat for Active Presence (stores lastSeen timestamp & current view)
 function updateActivePresence() {
   if (!state._activeUsers) state._activeUsers = {};
-  state._activeUsers[currentUser] = Date.now();
+  state._activeUsers[currentUser] = {
+    lastSeen: Date.now(),
+    week: currentWeek
+  };
 }
 
-// Clean Stale Presence (> 30s inactive)
-function getActiveUsersList() {
-  if (!state._activeUsers) return [currentUser];
+// Filter Active Users (< 30s inactive)
+function getActiveUsers() {
+  if (!state._activeUsers) return [];
   const now = Date.now();
-  const activeNames = Object.entries(state._activeUsers)
-    .filter(([_, lastSeen]) => now - lastSeen < 30000)
-    .map(([name]) => name);
   
-  return activeNames.length > 0 ? activeNames : [currentUser];
+  return Object.entries(state._activeUsers)
+    .filter(([_, data]) => {
+      // Support legacy structure or object structure
+      const lastSeen = typeof data === 'number' ? data : data.lastSeen;
+      return now - lastSeen < 30000;
+    })
+    .map(([name, data]) => ({
+      name,
+      week: typeof data === 'object' && data.week ? data.week : "Week 1"
+    }));
 }
 
-// Render Online Presence Badge
-function renderActiveUsers() {
-  const activeList = getActiveUsersList();
-  activeUsersCount.textContent = activeList.length;
-  activeUsersTooltip.textContent = `Active: ${activeList.join(', ')}`;
+// Render Top Bar Active Users Counter
+function renderActiveUsersHeader() {
+  const activeList = getActiveUsers();
+  const count = activeList.length > 0 ? activeList.length : 1;
+  const names = activeList.length > 0 ? activeList.map(u => u.name).join(', ') : currentUser;
+
+  activeUsersCount.textContent = count;
+  activeUsersTooltip.textContent = `Active: ${names}`;
 }
 
 // Fetch Live Data from JsonBin
@@ -89,7 +101,7 @@ async function fetchCloudData(force = false) {
       render();
     }
   } catch (err) {
-    console.error("Cloud fetch failed, using internal syllabus state", err);
+    console.error("Cloud fetch failed", err);
     if (!state["Week 1"]) state = DEFAULT_SYLLABUS;
     render();
   } finally {
@@ -186,7 +198,6 @@ deleteWeekBtn.onclick = () => {
   if (confirm(`Are you sure you want to delete "${currentWeek}" and all topics inside it?`)) {
     delete state[currentWeek];
     
-    // Switch to first remaining week
     const remainingWeeks = Object.keys(state).filter(k => k !== '_activeUsers');
     currentWeek = remainingWeeks[0] || "Week 1";
 
@@ -195,34 +206,76 @@ deleteWeekBtn.onclick = () => {
   }
 };
 
-// Render Sidebar Navigation Tabs
+// Render Sidebar Navigation Tabs with Per-Week Active User Indicators
 function renderTabs() {
   weekTabs.innerHTML = '';
-  
+  const activeUsers = getActiveUsers();
+
   Object.keys(state)
     .filter(key => key !== '_activeUsers')
     .forEach(week => {
+      const usersInThisWeek = activeUsers.filter(u => u.week === week);
+      const userNamesInThisWeek = usersInThisWeek.map(u => u.name);
+
       const li = document.createElement('li');
       li.className = `week-tab ${week === currentWeek ? 'active' : ''}`;
-      li.textContent = week;
+      
+      const titleSpan = document.createElement('span');
+      titleSpan.textContent = week;
+      li.appendChild(titleSpan);
+
+      // Render Active Indicator Inline Right Next to Week Title
+      if (usersInThisWeek.length > 0) {
+        const activeBadge = document.createElement('span');
+        activeBadge.className = 'tab-active-indicator';
+        
+        // Show Name if 1 user, or count if multiple
+        if (usersInThisWeek.length === 1) {
+          activeBadge.textContent = `🟢 ${userNamesInThisWeek[0]}`;
+        } else {
+          activeBadge.textContent = `🟢 ${usersInThisWeek.length} online (${userNamesInThisWeek.join(', ')})`;
+        }
+        
+        li.appendChild(activeBadge);
+      }
+
       li.onclick = () => {
         currentWeek = week;
+        updateActivePresence();
+        queueSaveCloudData();
         render();
       };
+      
       weekTabs.appendChild(li);
     });
 
+  // Summary Tab
+  const summaryUsers = activeUsers.filter(u => u.week === SUMMARY_TAB_KEY);
   const summaryLi = document.createElement('li');
   summaryLi.className = `week-tab summary-tab ${currentWeek === SUMMARY_TAB_KEY ? 'active' : ''}`;
-  summaryLi.textContent = SUMMARY_TAB_KEY;
+  
+  const summarySpan = document.createElement('span');
+  summarySpan.textContent = SUMMARY_TAB_KEY;
+  summaryLi.appendChild(summarySpan);
+
+  if (summaryUsers.length > 0) {
+    const activeBadge = document.createElement('span');
+    activeBadge.className = 'tab-active-indicator';
+    activeBadge.textContent = `🟢 ${summaryUsers.map(u => u.name).join(', ')}`;
+    summaryLi.appendChild(activeBadge);
+  }
+
   summaryLi.onclick = () => {
     currentWeek = SUMMARY_TAB_KEY;
+    updateActivePresence();
+    queueSaveCloudData();
     render();
   };
+  
   weekTabs.appendChild(summaryLi);
 }
 
-// Render Document View or Summary Dashboard
+// Render Main Document View
 function renderTopics() {
   currentWeekTitle.textContent = currentWeek;
   topicContainer.innerHTML = '';
@@ -291,7 +344,7 @@ function renderTopics() {
   }, 0);
 }
 
-// Render Complete Syllabus Summary View
+// Summary Dashboard
 function renderSyllabusSummaryDashboard() {
   const container = document.createElement('div');
 
@@ -339,7 +392,7 @@ function renderSyllabusSummaryDashboard() {
   topicContainer.appendChild(container);
 }
 
-// Local Mutations with Queued Background Saving
+// Local Mutations
 function updateTopicTitle(tIndex, val) { 
   state[currentWeek][tIndex].title = val; 
   queueSaveCloudData(); 
@@ -399,16 +452,16 @@ addTopicBtn.onclick = () => {
 
 function render() {
   userStatus.textContent = `User: ${currentUser}`;
-  renderActiveUsers();
+  renderActiveUsersHeader();
   renderTabs();
   renderTopics();
 }
 
-// Background Polling Every 6 Seconds
+// Background Polling Every 5 Seconds
 setInterval(() => {
   updateActivePresence();
   fetchCloudData(false);
-}, 6000);
+}, 5000);
 
 // Initial Load
 fetchCloudData(true);
