@@ -25,8 +25,19 @@ const weekTabs = document.getElementById('week-tabs');
 const currentWeekTitle = document.getElementById('current-week-title');
 const topicContainer = document.getElementById('topic-container');
 const addTopicBtn = document.getElementById('add-topic-btn');
+const newWeekInput = document.getElementById('new-week-input');
+const addWeekBtn = document.getElementById('add-week-btn');
 
-
+// Default Fallback State
+const DEFAULT_SYLLABUS = {
+  "Week 1": [
+    {
+      id: Date.now(),
+      title: "Sample Topic",
+      subtopics: [{ id: Date.now() + 1, text: "Sample Subtopic", doubts: [] }]
+    }
+  ]
+};
 
 // Fetch Live Data from JsonBin
 async function fetchCloudData(force = false) {
@@ -94,6 +105,35 @@ authBtn.onclick = () => {
 };
 
 syncBtn.onclick = () => fetchCloudData(true);
+
+// Add New Custom Week Logic
+addWeekBtn.onclick = () => {
+  const weekName = newWeekInput.value.trim();
+  
+  if (!weekName) {
+    alert("Please enter a week title (e.g., Week 7).");
+    return;
+  }
+
+  if (state[weekName]) {
+    alert(`"${weekName}" already exists!`);
+    return;
+  }
+
+  state[weekName] = [
+    {
+      id: Date.now(),
+      title: "New Main Topic",
+      subtopics: [{ id: Date.now() + 1, text: "New Subtopic", doubts: [] }]
+    }
+  ];
+
+  currentWeek = weekName;
+  newWeekInput.value = '';
+
+  render();
+  queueSaveCloudData();
+};
 
 // Render Sidebar Navigation Tabs
 function renderTabs() {
@@ -179,7 +219,6 @@ function renderTopics() {
     topicContainer.appendChild(card);
   });
 
-  // Adjust heights for initial load
   setTimeout(() => {
     document.querySelectorAll('.subtopic-input').forEach(el => {
       el.style.height = 'auto';

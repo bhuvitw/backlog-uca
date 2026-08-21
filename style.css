@@ -118,6 +118,30 @@ body {
   font-weight: 600;
 }
 
+/* Sidebar Add Week Form */
+.add-week-box {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-week-box input {
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font-size: 13px;
+  width: 100%;
+}
+
+.add-week-box button {
+  width: 100%;
+  padding: 6px;
+  font-size: 12px;
+}
+
 /* Document Container */
 .document {
   flex: 1;
@@ -360,6 +384,21 @@ body {
     flex: 0 0 auto;
     white-space: nowrap;
     margin-bottom: 0;
+  }
+
+  .add-week-box {
+    flex-direction: row;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: none;
+  }
+  
+  .add-week-box input {
+    max-width: 150px;
+  }
+  
+  .add-week-box button {
+    width: auto;
   }
 
   .document {
