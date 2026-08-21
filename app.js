@@ -45,7 +45,7 @@ const DEFAULT_SYLLABUS = {
   ]
 };
 
-// Update Heartbeat for Active Presence (stores lastSeen timestamp & current view)
+// Update Heartbeat for Active Presence
 function updateActivePresence() {
   if (!state._activeUsers) state._activeUsers = {};
   state._activeUsers[currentUser] = {
@@ -61,7 +61,6 @@ function getActiveUsers() {
   
   return Object.entries(state._activeUsers)
     .filter(([_, data]) => {
-      // Support legacy structure or object structure
       const lastSeen = typeof data === 'number' ? data : data.lastSeen;
       return now - lastSeen < 30000;
     })
@@ -83,7 +82,8 @@ function renderActiveUsersHeader() {
 
 // Fetch Live Data from JsonBin
 async function fetchCloudData(force = false) {
-  if (isUserTyping && !force) return;
+  // Prevent background sync from overwriting state during user edits or ongoing saves
+  if ((isUserTyping || isSaving) && !force) return;
 
   syncBtn.textContent = "⏳ Syncing...";
   try {
@@ -109,7 +109,7 @@ async function fetchCloudData(force = false) {
   }
 }
 
-// Push Data to JsonBin with Debounce & Optimistic Save
+// Push Data to JsonBin
 function queueSaveCloudData() {
   updateActivePresence();
   syncBtn.textContent = "⏳ Saving...";
@@ -184,7 +184,7 @@ addWeekBtn.onclick = () => {
   queueSaveCloudData();
 };
 
-// Delete Current Week Logic
+// Fixed Delete Current Week Logic
 deleteWeekBtn.onclick = () => {
   if (currentWeek === SUMMARY_TAB_KEY) return;
 
@@ -206,7 +206,7 @@ deleteWeekBtn.onclick = () => {
   }
 };
 
-// Render Sidebar Navigation Tabs with Per-Week Active User Indicators
+// Render Sidebar Navigation Tabs
 function renderTabs() {
   weekTabs.innerHTML = '';
   const activeUsers = getActiveUsers();
@@ -224,12 +224,10 @@ function renderTabs() {
       titleSpan.textContent = week;
       li.appendChild(titleSpan);
 
-      // Render Active Indicator Inline Right Next to Week Title
       if (usersInThisWeek.length > 0) {
         const activeBadge = document.createElement('span');
         activeBadge.className = 'tab-active-indicator';
         
-        // Show Name if 1 user, or count if multiple
         if (usersInThisWeek.length === 1) {
           activeBadge.textContent = `🟢 ${userNamesInThisWeek[0]}`;
         } else {
