@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Space — Live Sync</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="nav">
+    <div class="nav-brand">📝 Shared Backlog Workspace</div>
+    <div class="user-auth">
+      <span id="user-status">User: Anonymous</span>
+      <input type="text" id="username-input" placeholder="Enter name..." />
+      <button id="auth-btn">Set Name</button>
+      <button id="sync-btn" title="Manual Sync">🔄 Syncing...</button>
+    </div>
+  </nav>
+
+  <div class="workspace">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-title">NAVIGATION</div>
+      <ul id="week-tabs" class="week-tabs">
+        <!-- Rendered by JS -->
+      </ul>
+    </aside>
+
+    <!-- Main Canvas -->
+    <main class="document">
+      <div class="doc-header">
+        <h1 id="current-week-title">Loading...</h1>
+        <button id="add-topic-btn" class="add-btn">+ Add Main Topic</button>
+      </div>
+
+      <!-- Topics Container / Summary Container -->
+      <div id="topic-container" class="topic-container">
+        <!-- Rendered by JS -->
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

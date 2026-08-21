@@ -1,0 +1,357 @@
+:root {
+  --bg-main: #ffffff;
+  --bg-hover: #f7f6f3;
+  --bg-selected: #efeee9;
+  --text-main: #37352f;
+  --text-muted: #787774;
+  --border-light: #e9e9e8;
+  --accent-red: #eb5757;
+  --accent-red-bg: #fdebec;
+  --accent-blue: #2563eb;
+  --accent-blue-bg: #eff6ff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.nav-brand {
+  font-weight: 600;
+}
+
+.user-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#user-status {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.user-auth input {
+  padding: 4px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+}
+
+.user-auth button, .add-btn {
+  padding: 4px 10px;
+  background: var(--text-main);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#sync-btn {
+  background: #f1f5f9;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.workspace {
+  display: flex;
+  min-height: calc(100vh - 50px);
+}
+
+.sidebar {
+  width: 230px;
+  border-right: 1px solid var(--border-light);
+  padding: 20px 12px;
+  background: #fafafa;
+}
+
+.sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding-left: 8px;
+}
+
+.week-tabs {
+  list-style: none;
+}
+
+.week-tab {
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.week-tab:hover {
+  background: var(--bg-hover);
+}
+
+.week-tab.active {
+  background: var(--bg-selected);
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.week-tab.summary-tab {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.document {
+  flex: 1;
+  padding: 40px 48px;
+  max-width: 900px;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.doc-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.topic-card {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+  background: #fff;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.topic-input {
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  width: 70%;
+  outline: none;
+  background: transparent;
+}
+
+.topic-input:focus {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.icon-btn:hover {
+  color: var(--accent-red);
+}
+
+.subtopics-list {
+  padding-left: 12px;
+  margin-top: 8px;
+  border-left: 2px solid var(--border-light);
+}
+
+.subtopic-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.subtopic-input {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.subtopic-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+
+.user-tag {
+  background: var(--accent-red-bg);
+  color: var(--accent-red);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+
+.resource-link {
+  font-size: 11px;
+  color: var(--accent-blue);
+  text-decoration: none;
+  margin-right: 6px;
+}
+
+.resource-link:hover {
+  text-decoration: underline;
+}
+
+.add-sub-btn {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 6px;
+  padding-left: 12px;
+}
+
+/* Summary Dashboard Styling */
+.summary-card {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fff;
+}
+
+.summary-card h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--accent-blue);
+}
+
+.doubt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.doubt-row:last-child {
+  border-bottom: none;
+}
+
+.doubt-topic {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.doubt-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Syllabus Summary View */
+.summary-week-section {
+  margin-bottom: 32px;
+}
+
+.summary-week-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  border-bottom: 2px solid var(--border-light);
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+}
+
+.summary-topic-card {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.summary-topic-header {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.summary-subtopics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-subtopic-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--bg-hover);
+  border-radius: 4px;
+}
+
+.summary-subtopic-text {
+  font-size: 13px;
+  font-weight: 500;
+  width: 60%;
+}
+
+.summary-subtopic-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.doubt-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  color: var(--text-muted);
+}
+
+.doubt-badge.has-doubts {
+  background: var(--accent-red-bg);
+  color: var(--accent-red);
+}
+
+.no-doubt-tag {
+  font-size: 11px;
+  color: #16a34a;
+}
+
+.student-list {
+  display: flex;
+  gap: 4px;
+}
