@@ -7,7 +7,9 @@ const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 // Global App State
 let currentUser = localStorage.getItem('study_user') || "Aman";
 let currentWeek = "Week 1";
-let state = {};
+let state = {
+  _activeUsers: {}
+};
 
 const SUMMARY_TAB_KEY = "📌 Complete Syllabus Summary";
 
@@ -27,9 +29,13 @@ const topicContainer = document.getElementById('topic-container');
 const addTopicBtn = document.getElementById('add-topic-btn');
 const newWeekInput = document.getElementById('new-week-input');
 const addWeekBtn = document.getElementById('add-week-btn');
+const deleteWeekBtn = document.getElementById('delete-week-btn');
+const activeUsersCount = document.getElementById('active-users-count');
+const activeUsersTooltip = document.getElementById('active-users-tooltip');
 
 // Default Fallback State
 const DEFAULT_SYLLABUS = {
+  _activeUsers: {},
   "Week 1": [
     {
       id: Date.now(),
@@ -38,6 +44,30 @@ const DEFAULT_SYLLABUS = {
     }
   ]
 };
+
+// Update Heartbeat for Active Presence
+function updateActivePresence() {
+  if (!state._activeUsers) state._activeUsers = {};
+  state._activeUsers[currentUser] = Date.now();
+}
+
+// Clean Stale Presence (> 30s inactive)
+function getActiveUsersList() {
+  if (!state._activeUsers) return [currentUser];
+  const now = Date.now();
+  const activeNames = Object.entries(state._activeUsers)
+    .filter(([_, lastSeen]) => now - lastSeen < 30000)
+    .map(([name]) => name);
+  
+  return activeNames.length > 0 ? activeNames : [currentUser];
+}
+
+// Render Online Presence Badge
+function renderActiveUsers() {
+  const activeList = getActiveUsersList();
+  activeUsersCount.textContent = activeList.length;
+  activeUsersTooltip.textContent = `Active: ${activeList.join(', ')}`;
+}
 
 // Fetch Live Data from JsonBin
 async function fetchCloudData(force = false) {
@@ -54,13 +84,13 @@ async function fetchCloudData(force = false) {
         state = data.record;
       } else {
         state = DEFAULT_SYLLABUS;
-        queueSaveCloudData();
       }
+      updateActivePresence();
       render();
     }
   } catch (err) {
     console.error("Cloud fetch failed, using internal syllabus state", err);
-    state = DEFAULT_SYLLABUS;
+    if (!state["Week 1"]) state = DEFAULT_SYLLABUS;
     render();
   } finally {
     syncBtn.textContent = "🟢 Live";
@@ -69,6 +99,7 @@ async function fetchCloudData(force = false) {
 
 // Push Data to JsonBin with Debounce & Optimistic Save
 function queueSaveCloudData() {
+  updateActivePresence();
   syncBtn.textContent = "⏳ Saving...";
   clearTimeout(saveDebounceTimer);
   
@@ -100,11 +131,17 @@ authBtn.onclick = () => {
     currentUser = name;
     localStorage.setItem('study_user', currentUser);
     usernameInput.value = '';
+    updateActivePresence();
+    queueSaveCloudData();
     render();
   }
 };
 
-syncBtn.onclick = () => fetchCloudData(true);
+syncBtn.onclick = () => {
+  updateActivePresence();
+  queueSaveCloudData();
+  fetchCloudData(true);
+};
 
 // Add New Custom Week Logic
 addWeekBtn.onclick = () => {
@@ -135,20 +172,45 @@ addWeekBtn.onclick = () => {
   queueSaveCloudData();
 };
 
+// Delete Current Week Logic
+deleteWeekBtn.onclick = () => {
+  if (currentWeek === SUMMARY_TAB_KEY) return;
+
+  const weekKeys = Object.keys(state).filter(k => k !== '_activeUsers');
+  
+  if (weekKeys.length <= 1) {
+    alert("You cannot delete the only remaining week!");
+    return;
+  }
+
+  if (confirm(`Are you sure you want to delete "${currentWeek}" and all topics inside it?`)) {
+    delete state[currentWeek];
+    
+    // Switch to first remaining week
+    const remainingWeeks = Object.keys(state).filter(k => k !== '_activeUsers');
+    currentWeek = remainingWeeks[0] || "Week 1";
+
+    render();
+    queueSaveCloudData();
+  }
+};
+
 // Render Sidebar Navigation Tabs
 function renderTabs() {
   weekTabs.innerHTML = '';
   
-  Object.keys(state).forEach(week => {
-    const li = document.createElement('li');
-    li.className = `week-tab ${week === currentWeek ? 'active' : ''}`;
-    li.textContent = week;
-    li.onclick = () => {
-      currentWeek = week;
-      render();
-    };
-    weekTabs.appendChild(li);
-  });
+  Object.keys(state)
+    .filter(key => key !== '_activeUsers')
+    .forEach(week => {
+      const li = document.createElement('li');
+      li.className = `week-tab ${week === currentWeek ? 'active' : ''}`;
+      li.textContent = week;
+      li.onclick = () => {
+        currentWeek = week;
+        render();
+      };
+      weekTabs.appendChild(li);
+    });
 
   const summaryLi = document.createElement('li');
   summaryLi.className = `week-tab summary-tab ${currentWeek === SUMMARY_TAB_KEY ? 'active' : ''}`;
@@ -167,11 +229,13 @@ function renderTopics() {
 
   if (currentWeek === SUMMARY_TAB_KEY) {
     addTopicBtn.style.display = "none";
+    deleteWeekBtn.style.display = "none";
     renderSyllabusSummaryDashboard();
     return;
   }
 
   addTopicBtn.style.display = "block";
+  deleteWeekBtn.style.display = "inline-block";
 
   if (!state[currentWeek]) return;
 
@@ -180,8 +244,8 @@ function renderTopics() {
     card.className = 'topic-card';
 
     const subtopicsHtml = topic.subtopics.map((sub, sIndex) => {
-      const hasDoubt = sub.doubts.includes(currentUser);
-      const doubtTags = sub.doubts.map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ');
+      const hasDoubt = sub.doubts ? sub.doubts.includes(currentUser) : false;
+      const doubtTags = (sub.doubts || []).map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ');
 
       return `
         <div class="subtopic-item">
@@ -231,44 +295,46 @@ function renderTopics() {
 function renderSyllabusSummaryDashboard() {
   const container = document.createElement('div');
 
-  Object.keys(state).forEach(week => {
-    const weekSection = document.createElement('div');
-    weekSection.className = 'summary-week-section';
-    weekSection.innerHTML = `<h2 class="summary-week-title">${week}</h2>`;
+  Object.keys(state)
+    .filter(k => k !== '_activeUsers')
+    .forEach(week => {
+      const weekSection = document.createElement('div');
+      weekSection.className = 'summary-week-section';
+      weekSection.innerHTML = `<h2 class="summary-week-title">${week}</h2>`;
 
-    state[week].forEach(topic => {
-      const topicCard = document.createElement('div');
-      topicCard.className = 'summary-topic-card';
-      
-      let subtopicsHtml = '';
+      state[week].forEach(topic => {
+        const topicCard = document.createElement('div');
+        topicCard.className = 'summary-topic-card';
+        
+        let subtopicsHtml = '';
 
-      topic.subtopics.forEach(sub => {
-        const doubtCount = sub.doubts ? sub.doubts.length : 0;
-        const studentNames = doubtCount > 0 
-          ? sub.doubts.map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ') 
-          : `<span class="no-doubt-tag">✅ Clear</span>`;
+        topic.subtopics.forEach(sub => {
+          const doubtCount = sub.doubts ? sub.doubts.length : 0;
+          const studentNames = doubtCount > 0 
+            ? sub.doubts.map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ') 
+            : `<span class="no-doubt-tag">✅ Clear</span>`;
 
-        subtopicsHtml += `
-          <div class="summary-subtopic-row">
-            <div class="summary-subtopic-text">${sub.text}</div>
-            <div class="summary-subtopic-meta">
-              <span class="doubt-badge ${doubtCount > 0 ? 'has-doubts' : ''}">${doubtCount} Doubts</span>
-              <div class="student-list">${studentNames}</div>
+          subtopicsHtml += `
+            <div class="summary-subtopic-row">
+              <div class="summary-subtopic-text">${sub.text}</div>
+              <div class="summary-subtopic-meta">
+                <span class="doubt-badge ${doubtCount > 0 ? 'has-doubts' : ''}">${doubtCount} Doubts</span>
+                <div class="student-list">${studentNames}</div>
+              </div>
             </div>
-          </div>
+          `;
+        });
+
+        topicCard.innerHTML = `
+          <div class="summary-topic-header">${topic.title}</div>
+          <div class="summary-subtopics-list">${subtopicsHtml}</div>
         `;
+
+        weekSection.appendChild(topicCard);
       });
 
-      topicCard.innerHTML = `
-        <div class="summary-topic-header">${topic.title}</div>
-        <div class="summary-subtopics-list">${subtopicsHtml}</div>
-      `;
-
-      weekSection.appendChild(topicCard);
+      container.appendChild(weekSection);
     });
-
-    container.appendChild(weekSection);
-  });
 
   topicContainer.appendChild(container);
 }
@@ -309,6 +375,9 @@ function deleteSubtopic(tIndex, sIndex) {
 }
 
 function toggleDoubt(tIndex, sIndex) {
+  if (!state[currentWeek][tIndex].subtopics[sIndex].doubts) {
+    state[currentWeek][tIndex].subtopics[sIndex].doubts = [];
+  }
   const doubts = state[currentWeek][tIndex].subtopics[sIndex].doubts;
   const idx = doubts.indexOf(currentUser);
   if (idx === -1) doubts.push(currentUser);
@@ -330,12 +399,16 @@ addTopicBtn.onclick = () => {
 
 function render() {
   userStatus.textContent = `User: ${currentUser}`;
+  renderActiveUsers();
   renderTabs();
   renderTopics();
 }
 
-// Background Polling Every 8 Seconds
-setInterval(() => fetchCloudData(false), 8000);
+// Background Polling Every 6 Seconds
+setInterval(() => {
+  updateActivePresence();
+  fetchCloudData(false);
+}, 6000);
 
 // Initial Load
 fetchCloudData(true);

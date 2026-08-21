@@ -11,7 +11,14 @@
   <!-- Top Navigation -->
   <nav class="nav">
     <div class="nav-brand">📝 Shared Backlog Workspace</div>
+    
     <div class="user-auth">
+      <!-- Active Users Counter -->
+      <div id="active-users-badge" class="active-users-badge" title="Active users in last 30s">
+        🟢 <span id="active-users-count">1</span> Active
+        <div id="active-users-tooltip" class="active-users-tooltip">Active: You</div>
+      </div>
+
       <span id="user-status">User: Anonymous</span>
       <input type="text" id="username-input" placeholder="Enter name..." />
       <button id="auth-btn">Set Name</button>
@@ -37,7 +44,10 @@
     <!-- Main Canvas -->
     <main class="document">
       <div class="doc-header">
-        <h1 id="current-week-title">Loading...</h1>
+        <div class="doc-title-group">
+          <h1 id="current-week-title">Loading...</h1>
+          <button id="delete-week-btn" class="icon-btn delete-week-btn" title="Delete current week">🗑️ Delete Week</button>
+        </div>
         <button id="add-topic-btn" class="add-btn">+ Add Main Topic</button>
       </div>
 
