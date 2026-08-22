@@ -305,7 +305,7 @@ function renderTopics() {
             rows="1"
             onfocus="isUserTyping=true"
             onblur="isUserTyping=false"
-            oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px'; updateSubtopic(${tIndex}, ${sIndex}, this.value)"
+            oninput="this.style.height='auto'; this.style.height=(this.scrollHeight + 4)+'px'; updateSubtopic(${tIndex}, ${sIndex}, this.value)"
           >${sub.text}</textarea>
           <div class="subtopic-actions">
             ${doubtTags}
