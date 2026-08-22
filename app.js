@@ -337,9 +337,9 @@ function renderTopics() {
   setTimeout(() => {
     document.querySelectorAll('.subtopic-input').forEach(el => {
       el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-    });
-  }, 0);
+      el.style.height = (el.scrollHeight + 4) + 'px'; // Thoda extra padding taaki text cut na ho
+    }, 50);
+  });
 }
 
 // Summary Dashboard
