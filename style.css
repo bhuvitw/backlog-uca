@@ -290,15 +290,21 @@ body {
 .subtopic-input {
   flex: 1;
   min-width: 0;
+  width: 100%;
   resize: none;
-  overflow: hidden;
+  overflow: hidden; /* Scrollbars hide karne ke liye */
   font-family: inherit;
   font-size: 0.95rem;
-  padding: 6px 8px;
+  padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   line-height: 1.4;
   box-sizing: border-box;
+  
+  /* Text wrapping fix taaki text hide na ho */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .subtopic-actions {
