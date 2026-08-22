@@ -411,19 +411,25 @@ body {
 @media (max-width: 768px) {
   .nav {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 16px;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .nav-brand {
+    font-size: 15px;
   }
 
   .user-auth {
     width: 100%;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
   }
 
-  .user-auth input {
-    flex: 1;
-    min-width: 120px;
+  .user-auth input, 
+  .user-auth button {
+    width: 100%;
   }
 
   .workspace {
@@ -434,14 +440,14 @@ body {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--border-light);
-    padding: 12px 16px;
+    padding: 12px 14px;
   }
 
   .week-tabs {
     display: flex;
     overflow-x: auto;
-    gap: 8px;
-    padding-bottom: 4px;
+    gap: 6px;
+    padding-bottom: 6px;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -455,30 +461,85 @@ body {
     flex-direction: row;
     margin-top: 10px;
     padding-top: 8px;
-    border-top: none;
+    border-top: 1px solid var(--border-light);
   }
   
   .add-week-box input {
-    max-width: 150px;
+    flex: 1;
+    max-width: none;
   }
   
   .add-week-box button {
     width: auto;
+    white-space: nowrap;
   }
 
   .document {
-    padding: 20px 16px;
+    padding: 16px 12px;
     max-width: 100%;
+  }
+
+  .doc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .doc-title-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .doc-header h1 {
+    font-size: 20px;
+  }
+
+  #add-topic-btn {
+    width: 100%;
+  }
+
+  .topic-card {
+    padding: 10px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .topic-input {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .card-header .icon-btn {
+    align-self: flex-end;
   }
 
   .subtopic-item {
     flex-direction: column;
     align-items: stretch;
+    gap: 6px;
+    background: var(--bg-hover);
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .subtopic-input {
+    width: 100%;
+    font-size: 14px;
   }
 
   .subtopic-actions {
-    justify-content: flex-end;
-    margin-top: 4px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dashed var(--border-light);
+    padding-top: 6px;
+    margin-top: 2px;
   }
 
   .summary-subtopic-row {
@@ -498,31 +559,7 @@ body {
 }
 
 @media (max-width: 480px) {
-  .doc-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .doc-header h1 {
-    font-size: 20px;
-  }
-
-  .add-btn {
-    width: 100%;
-  }
-
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .topic-input {
-    width: 100%;
-  }
-
-  .subtopic-actions {
-    width: 100%;
-    justify-content: space-between;
+  .nav-brand {
+    font-size: 14px;
   }
 }
