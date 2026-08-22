@@ -305,7 +305,7 @@ function renderTopics() {
             rows="1"
             onfocus="isUserTyping=true"
             onblur="isUserTyping=false"
-            oninput="this.style.height='auto'; this.style.height=(this.scrollHeight + 4)+'px'; updateSubtopic(${tIndex}, ${sIndex}, this.value)"
+            oninput="this.style.height='auto'; this.style.height=(this.scrollHeight + 8)+'px'; updateSubtopic(${tIndex}, ${sIndex}, this.value)"
           >${sub.text}</textarea>
           <div class="subtopic-actions">
             ${doubtTags}
@@ -337,9 +337,9 @@ function renderTopics() {
   setTimeout(() => {
     document.querySelectorAll('.subtopic-input').forEach(el => {
       el.style.height = 'auto';
-      el.style.height = (el.scrollHeight + 4) + 'px'; // Thoda extra padding taaki text cut na ho
-    }, 50);
-  });
+      el.style.height = (el.scrollHeight + 8) + 'px';
+    });
+  }, 50);
 }
 
 // Summary Dashboard
