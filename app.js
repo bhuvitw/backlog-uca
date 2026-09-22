@@ -1,6 +1,6 @@
 // CONFIGURATION: JsonBin credentials
-const JSONBIN_BIN_ID = "6a888600f5f4af5e29321b4a";
-const JSONBIN_API_KEY = "$2a$10$$2a$10$gj4311d5rdLAGcMEteWRxevY7dmIS1adsXqHSpANszxs8Xpq7usd2";
+const JSONBIN_BIN_ID = "6ab22020ffd5d1605321ef18";
+const JSONBIN_API_KEY = "$2a$10$eio1XXQV.jrxP1dhij81nuOtOn4oDfUWx/clNVgNJKZBwxqjhsjka";
 
 const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
