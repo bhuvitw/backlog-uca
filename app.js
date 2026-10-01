@@ -1,6 +1,6 @@
 // CONFIGURATION: JsonBin credentials
-const JSONBIN_BIN_ID = "6ab22020ffd5d1605321ef18";
-const JSONBIN_API_KEY = "$2a$10$eio1XXQV.jrxP1dhij81nuOtOn4oDfUWx/clNVgNJKZBwxqjhsjka";
+const JSONBIN_BIN_ID = "6abe8ef4ffd5d160534359db";
+const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
 
 const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
@@ -111,7 +111,6 @@ async function fetchCloudData(force = false) {
 
 // Push Data to JsonBin
 function queueSaveCloudData() {
-  updateActivePresence();
   syncBtn.textContent = "⏳ Saving...";
   clearTimeout(saveDebounceTimer);
   
@@ -457,9 +456,8 @@ function render() {
 
 // Background Polling Every 5 Seconds
 setInterval(() => {
-  updateActivePresence();
   fetchCloudData(false);
-}, 5000);
+}, 30000);
 
 // Initial Load
 fetchCloudData(true);
