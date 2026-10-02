@@ -1,3 +1,5 @@
+import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWeek, setState } from "./state/appState.js";
+
 // CONFIGURATION: JsonBin credentials
 const JSONBIN_BIN_ID = "6abe8ef4ffd5d160534359db";
 const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
@@ -5,11 +7,8 @@ const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6ux
 const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 // Global App State
-let currentUser = localStorage.getItem('study_user') || "Aman";
-let currentWeek = "Week 1";
-let state = {
-  _activeUsers: {}
-};
+
+
 
 const SUMMARY_TAB_KEY = "📌 Complete Syllabus Summary";
 
@@ -47,19 +46,19 @@ const DEFAULT_SYLLABUS = {
 
 // Update Heartbeat for Active Presence
 function updateActivePresence() {
-  if (!state._activeUsers) state._activeUsers = {};
-  state._activeUsers[currentUser] = {
+  if (!getState()._activeUsers) setState()._activeUsers = {};
+  getState()._activeUsers[getCurrentUser()] = {
     lastSeen: Date.now(),
-    week: currentWeek
+    week: getCurrentWeek()
   };
 }
 
 // Filter Active Users (< 30s inactive)
 function getActiveUsers() {
-  if (!state._activeUsers) return [];
+  if (!getState()._activeUsers) return [];
   const now = Date.now();
   
-  return Object.entries(state._activeUsers)
+  return Object.entries(getState()._activeUsers)
     .filter(([_, data]) => {
       const lastSeen = typeof data === 'number' ? data : data.lastSeen;
       return now - lastSeen < 30000;
@@ -74,7 +73,7 @@ function getActiveUsers() {
 function renderActiveUsersHeader() {
   const activeList = getActiveUsers();
   const count = activeList.length > 0 ? activeList.length : 1;
-  const names = activeList.length > 0 ? activeList.map(u => u.name).join(', ') : currentUser;
+  const names = activeList.length > 0 ? activeList.map(u => u.name).join(', ') : getCurrentUser();
 
   activeUsersCount.textContent = count;
   activeUsersTooltip.textContent = `Active: ${names}`;
@@ -93,16 +92,16 @@ async function fetchCloudData(force = false) {
     if (res.ok) {
       const data = await res.json();
       if (data.record && Object.keys(data.record).length > 0) {
-        state = data.record;
+        setState(data.record);
       } else {
-        state = DEFAULT_SYLLABUS;
+        setState(DEFAULT_SYLLABUS);
       }
       updateActivePresence();
       render();
     }
   } catch (err) {
     console.error("Cloud fetch failed", err);
-    if (!state["Week 1"]) state = DEFAULT_SYLLABUS;
+    if (!getState()["Week 1"]) setState(DEFAULT_SYLLABUS);
     render();
   } finally {
     syncBtn.textContent = "🟢 Live";
@@ -123,7 +122,7 @@ function queueSaveCloudData() {
           "Content-Type": "application/json",
           "X-Master-Key": JSONBIN_API_KEY
         },
-        body: JSON.stringify(state)
+        body: JSON.stringify(getState())
       });
       syncBtn.textContent = "🟢 Live";
     } catch (err) {
@@ -139,8 +138,8 @@ function queueSaveCloudData() {
 authBtn.onclick = () => {
   const name = usernameInput.value.trim();
   if (name) {
-    currentUser = name;
-    localStorage.setItem('study_user', currentUser);
+    setCurrentUser(name);
+    localStorage.setItem('study_user', getCurrentUser());
     usernameInput.value = '';
     updateActivePresence();
     queueSaveCloudData();
@@ -163,12 +162,12 @@ addWeekBtn.onclick = () => {
     return;
   }
 
-  if (state[weekName]) {
+  if (getState()[weekName]) {
     alert(`"${weekName}" already exists!`);
     return;
   }
 
-  state[weekName] = [
+  getState()[weekName] = [
     {
       id: Date.now(),
       title: "New Main Topic",
@@ -176,7 +175,7 @@ addWeekBtn.onclick = () => {
     }
   ];
 
-  currentWeek = weekName;
+  setCurrentWeek(weekName);
   newWeekInput.value = '';
 
   render();
@@ -185,20 +184,20 @@ addWeekBtn.onclick = () => {
 
 // Fixed Delete Current Week Logic
 deleteWeekBtn.onclick = () => {
-  if (currentWeek === SUMMARY_TAB_KEY) return;
+  if (getCurrentWeek() === SUMMARY_TAB_KEY) return;
 
-  const weekKeys = Object.keys(state).filter(k => k !== '_activeUsers');
+  const weekKeys = Object.keys(getState()).filter(k => k !== '_activeUsers');
   
   if (weekKeys.length <= 1) {
     alert("You cannot delete the only remaining week!");
     return;
   }
 
-  if (confirm(`Are you sure you want to delete "${currentWeek}" and all topics inside it?`)) {
-    delete state[currentWeek];
+  if (confirm(`Are you sure you want to delete "${getCurrentWeek()}" and all topics inside it?`)) {
+    delete getState()[getCurrentWeek()];
     
-    const remainingWeeks = Object.keys(state).filter(k => k !== '_activeUsers');
-    currentWeek = remainingWeeks[0] || "Week 1";
+    const remainingWeeks = Object.keys(getState()).filter(k => k !== '_activeUsers');
+    setCurrentWeek(remainingWeeks[0] || "Week 1");
 
     render();
     queueSaveCloudData();
@@ -210,14 +209,14 @@ function renderTabs() {
   weekTabs.innerHTML = '';
   const activeUsers = getActiveUsers();
 
-  Object.keys(state)
+  Object.keys(getState())
     .filter(key => key !== '_activeUsers')
     .forEach(week => {
       const usersInThisWeek = activeUsers.filter(u => u.week === week);
       const userNamesInThisWeek = usersInThisWeek.map(u => u.name);
 
       const li = document.createElement('li');
-      li.className = `week-tab ${week === currentWeek ? 'active' : ''}`;
+      li.className = `week-tab ${week === getCurrentWeek() ? 'active' : ''}`;
       
       const titleSpan = document.createElement('span');
       titleSpan.textContent = week;
@@ -237,7 +236,7 @@ function renderTabs() {
       }
 
       li.onclick = () => {
-        currentWeek = week;
+        setCurrentWeek(week);
         updateActivePresence();
         queueSaveCloudData();
         render();
@@ -249,7 +248,7 @@ function renderTabs() {
   // Summary Tab
   const summaryUsers = activeUsers.filter(u => u.week === SUMMARY_TAB_KEY);
   const summaryLi = document.createElement('li');
-  summaryLi.className = `week-tab summary-tab ${currentWeek === SUMMARY_TAB_KEY ? 'active' : ''}`;
+  summaryLi.className = `week-tab summary-tab ${getCurrentWeek() === SUMMARY_TAB_KEY ? 'active' : ''}`;
   
   const summarySpan = document.createElement('span');
   summarySpan.textContent = SUMMARY_TAB_KEY;
@@ -263,7 +262,7 @@ function renderTabs() {
   }
 
   summaryLi.onclick = () => {
-    currentWeek = SUMMARY_TAB_KEY;
+    setCurrentWeek(SUMMARY_TAB_KEY);
     updateActivePresence();
     queueSaveCloudData();
     render();
@@ -274,10 +273,10 @@ function renderTabs() {
 
 // Render Main Document View
 function renderTopics() {
-  currentWeekTitle.textContent = currentWeek;
+  currentWeekTitle.textContent = getCurrentWeek();
   topicContainer.innerHTML = '';
 
-  if (currentWeek === SUMMARY_TAB_KEY) {
+  if (getCurrentWeek() === SUMMARY_TAB_KEY) {
     addTopicBtn.style.display = "none";
     deleteWeekBtn.style.display = "none";
     renderSyllabusSummaryDashboard();
@@ -287,14 +286,14 @@ function renderTopics() {
   addTopicBtn.style.display = "block";
   deleteWeekBtn.style.display = "inline-block";
 
-  if (!state[currentWeek]) return;
+  if (!getState()[getCurrentWeek()]) return;
 
-  state[currentWeek].forEach((topic, tIndex) => {
+  getState()[getCurrentWeek()].forEach((topic, tIndex) => {
     const card = document.createElement('div');
     card.className = 'topic-card';
 
     const subtopicsHtml = topic.subtopics.map((sub, sIndex) => {
-      const hasDoubt = sub.doubts ? sub.doubts.includes(currentUser) : false;
+      const hasDoubt = sub.doubts ? sub.doubts.includes(getCurrentUser()) : false;
       const doubtTags = (sub.doubts || []).map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ');
 
       return `
@@ -345,14 +344,14 @@ function renderTopics() {
 function renderSyllabusSummaryDashboard() {
   const container = document.createElement('div');
 
-  Object.keys(state)
+  (Object.keys(getState()))
     .filter(k => k !== '_activeUsers')
     .forEach(week => {
       const weekSection = document.createElement('div');
       weekSection.className = 'summary-week-section';
       weekSection.innerHTML = `<h2 class="summary-week-title">${week}</h2>`;
 
-      state[week].forEach(topic => {
+      getState()[week].forEach(topic => {
         const topicCard = document.createElement('div');
         topicCard.className = 'summary-topic-card';
         
@@ -391,54 +390,54 @@ function renderSyllabusSummaryDashboard() {
 
 // Local Mutations
 function updateTopicTitle(tIndex, val) { 
-  state[currentWeek][tIndex].title = val; 
+  getState()[getCurrentWeek()][tIndex].title = val; 
   queueSaveCloudData(); 
 }
 
 function deleteTopic(tIndex) {
-  const topicName = state[currentWeek][tIndex].title || "this topic";
+  const topicName = getState()[getCurrentWeek()][tIndex].title || "this topic";
   if (confirm(`Are you sure you want to delete "${topicName}" and all its subtopics?`)) {
-    state[currentWeek].splice(tIndex, 1);
+    getState()[getCurrentWeek()].splice(tIndex, 1);
     renderTopics();
     queueSaveCloudData();
   }
 }
 
 function addSubtopic(tIndex) { 
-  state[currentWeek][tIndex].subtopics.push({ id: Date.now(), text: "New Subtopic", doubts: [] }); 
+  getState()[getCurrentWeek()][tIndex].subtopics.push({ id: Date.now(), text: "New Subtopic", doubts: [] }); 
   renderTopics();
   queueSaveCloudData(); 
 }
 
 function updateSubtopic(tIndex, sIndex, val) { 
-  state[currentWeek][tIndex].subtopics[sIndex].text = val; 
+  getState()[getCurrentWeek()][tIndex].subtopics[sIndex].text = val; 
   queueSaveCloudData(); 
 }
 
 function deleteSubtopic(tIndex, sIndex) {
-  const subtopicText = state[currentWeek][tIndex].subtopics[sIndex].text || "this subtopic";
+  const subtopicText = getState()[getCurrentWeek()][tIndex].subtopics[sIndex].text || "this subtopic";
   if (confirm(`Are you sure you want to delete "${subtopicText}"?`)) {
-    state[currentWeek][tIndex].subtopics.splice(sIndex, 1);
+    getState()[getCurrentWeek()][tIndex].subtopics.splice(sIndex, 1);
     renderTopics();
     queueSaveCloudData();
   }
 }
 
 function toggleDoubt(tIndex, sIndex) {
-  if (!state[currentWeek][tIndex].subtopics[sIndex].doubts) {
-    state[currentWeek][tIndex].subtopics[sIndex].doubts = [];
+  if (!getState()[getCurrentWeek()][tIndex].subtopics[sIndex].doubts) {
+    getState()[getCurrentWeek()][tIndex].subtopics[sIndex].doubts = [];
   }
-  const doubts = state[currentWeek][tIndex].subtopics[sIndex].doubts;
-  const idx = doubts.indexOf(currentUser);
-  if (idx === -1) doubts.push(currentUser);
+  const doubts = getState()[getCurrentWeek()][tIndex].subtopics[sIndex].doubts;
+  const idx = doubts.indexOf(getCurrentUser());
+  if (idx === -1) doubts.push(getCurrentUser());
   else doubts.splice(idx, 1);
   renderTopics();
   queueSaveCloudData();
 }
 
 addTopicBtn.onclick = () => {
-  if (!state[currentWeek]) state[currentWeek] = [];
-  state[currentWeek].push({
+  if (!getState()[getCurrentWeek()]) getState()[getCurrentWeek()] = [];
+  getState()[getCurrentWeek()].push({
     id: Date.now(),
     title: "New Main Topic",
     subtopics: [{ id: Date.now() + 1, text: "New Subtopic", doubts: [] }]
@@ -448,7 +447,7 @@ addTopicBtn.onclick = () => {
 };
 
 function render() {
-  userStatus.textContent = `User: ${currentUser}`;
+  userStatus.textContent = `User: ${getCurrentUser()}`;
   renderActiveUsersHeader();
   renderTabs();
   renderTopics();
@@ -457,7 +456,7 @@ function render() {
 // Background Polling Every 5 Seconds
 setInterval(() => {
   fetchCloudData(false);
-}, 30000);
+}, 300000);
 
 // Initial Load
 fetchCloudData(true);
