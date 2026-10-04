@@ -1,3 +1,4 @@
+import { updateTopicTitle } from "./domain/topics.js";
 import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWeek, setState } from "./state/appState.js";
 
 // CONFIGURATION: JsonBin credentials
@@ -321,7 +322,7 @@ function renderTopics() {
           value="${topic.title}" 
           onfocus="isUserTyping=true"
           onblur="isUserTyping=false"
-          oninput="updateTopicTitle(${tIndex}, this.value)" 
+          data-topic-index="${tIndex}"
         />
         <button class="icon-btn" onclick="deleteTopic(${tIndex})">Delete Topic</button>
       </div>
@@ -330,6 +331,16 @@ function renderTopics() {
     `;
 
     topicContainer.appendChild(card);
+
+    document.querySelectorAll(".topic-input").forEach(input => {
+      input.addEventListener("input", (event) => {
+        const topicIndex = Number(event.currentTarget.dataset.topicIndex);
+        const newTitle = event.currentTarget.value;
+
+        updateTopicTitle(topicIndex, newTitle);
+        queueSaveCloudData(); 
+      })
+    })
   });
 
   setTimeout(() => {
@@ -389,10 +400,6 @@ function renderSyllabusSummaryDashboard() {
 }
 
 // Local Mutations
-function updateTopicTitle(tIndex, val) { 
-  getState()[getCurrentWeek()][tIndex].title = val; 
-  queueSaveCloudData(); 
-}
 
 function deleteTopic(tIndex) {
   const topicName = getState()[getCurrentWeek()][tIndex].title || "this topic";
