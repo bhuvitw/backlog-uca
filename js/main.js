@@ -2,6 +2,10 @@ import { toggleDoubt } from "./domain/doubt.js";
 import { addSubtopic, deleteSubTopic, updateSubTopic } from "./domain/subTopics.js";
 import { addTopic, deleteTopic, updateTopicTitle } from "./domain/topics.js";
 import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWeek, setState } from "./state/appState.js";
+import { render } from "./ui/render.js";
+import { renderSyllabusSummaryDashboard } from "./ui/summaryView.js";
+import { renderTopics } from "./ui/topicsView.js";
+import { renderWeeks } from "./ui/weekView.js";
 
 // CONFIGURATION: JsonBin credentials
 const JSONBIN_BIN_ID = "6abe8ef4ffd5d160534359db";
@@ -208,263 +212,10 @@ deleteWeekBtn.onclick = () => {
 };
 
 // Render Sidebar Navigation Tabs
-function renderTabs() {
-  weekTabs.innerHTML = '';
-  const activeUsers = getActiveUsers();
 
-  Object.keys(getState())
-    .filter(key => key !== '_activeUsers')
-    .forEach(week => {
-      const usersInThisWeek = activeUsers.filter(u => u.week === week);
-      const userNamesInThisWeek = usersInThisWeek.map(u => u.name);
-
-      const li = document.createElement('li');
-      li.className = `week-tab ${week === getCurrentWeek() ? 'active' : ''}`;
-      
-      const titleSpan = document.createElement('span');
-      titleSpan.textContent = week;
-      li.appendChild(titleSpan);
-
-      if (usersInThisWeek.length > 0) {
-        const activeBadge = document.createElement('span');
-        activeBadge.className = 'tab-active-indicator';
-        
-        if (usersInThisWeek.length === 1) {
-          activeBadge.textContent = `🟢 ${userNamesInThisWeek[0]}`;
-        } else {
-          activeBadge.textContent = `🟢 ${usersInThisWeek.length} online (${userNamesInThisWeek.join(', ')})`;
-        }
-        
-        li.appendChild(activeBadge);
-      }
-
-      li.onclick = () => {
-        setCurrentWeek(week);
-        updateActivePresence();
-        queueSaveCloudData();
-        render();
-      };
-      
-      weekTabs.appendChild(li);
-    });
-
-  // Summary Tab
-  const summaryUsers = activeUsers.filter(u => u.week === SUMMARY_TAB_KEY);
-  const summaryLi = document.createElement('li');
-  summaryLi.className = `week-tab summary-tab ${getCurrentWeek() === SUMMARY_TAB_KEY ? 'active' : ''}`;
-  
-  const summarySpan = document.createElement('span');
-  summarySpan.textContent = SUMMARY_TAB_KEY;
-  summaryLi.appendChild(summarySpan);
-
-  if (summaryUsers.length > 0) {
-    const activeBadge = document.createElement('span');
-    activeBadge.className = 'tab-active-indicator';
-    activeBadge.textContent = `🟢 ${summaryUsers.map(u => u.name).join(', ')}`;
-    summaryLi.appendChild(activeBadge);
-  }
-
-  summaryLi.onclick = () => {
-    setCurrentWeek(SUMMARY_TAB_KEY);
-    updateActivePresence();
-    queueSaveCloudData();
-    render();
-  };
-  
-  weekTabs.appendChild(summaryLi);
-}
 
 // Render Main Document View
-function renderTopics() {
-  currentWeekTitle.textContent = getCurrentWeek();
-  topicContainer.innerHTML = '';
 
-  if (getCurrentWeek() === SUMMARY_TAB_KEY) {
-    addTopicBtn.style.display = "none";
-    deleteWeekBtn.style.display = "none";
-    renderSyllabusSummaryDashboard();
-    return;
-  }
-
-  addTopicBtn.style.display = "block";
-  deleteWeekBtn.style.display = "inline-block";
-
-  if (!getState()[getCurrentWeek()]) return;
-
-  getState()[getCurrentWeek()].forEach((topic, tIndex) => {
-    const card = document.createElement('div');
-    card.className = 'topic-card';
-
-    const subtopicsHtml = topic.subtopics.map((sub, sIndex) => {
-      const hasDoubt = sub.doubts ? sub.doubts.includes(getCurrentUser()) : false;
-      const doubtTags = (sub.doubts || []).map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ');
-
-      return `
-        <div class="subtopic-item">
-          <textarea 
-            class="subtopic-input" 
-            rows="1"
-            onfocus="isUserTyping=true"
-            onblur="isUserTyping=false"
-            data-topic-index="${tIndex}" 
-            data-subtopic-index="${sIndex}"
-          >${sub.text}</textarea>
-          <div class="subtopic-actions">
-            ${doubtTags}
-            <button class="icon-btn toggle-doubt-btn" data-topic-index="${tIndex}" data-subtopic-index="${sIndex}">${hasDoubt ? '❌ Clear' : '🙋 Doubt'}</button>
-            <button class="icon-btn delete-subtopic-btn" data-topic-index="${tIndex}" data-subtopic-index="${sIndex}">🗑️ Delete</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    card.innerHTML = `
-      <div class="card-header">
-        <input 
-          class="topic-input" 
-          value="${topic.title}" 
-          onfocus="isUserTyping=true"
-          onblur="isUserTyping=false"
-          data-topic-index="${tIndex}"
-        />
-        <button class="icon-btn delete-topic-btn" data-topic-index="${tIndex}">Delete Topic</button>
-      </div>
-      <div class="subtopics-list">${subtopicsHtml}</div>
-      <button class="add-sub-btn" data-topic-index="${tIndex}">+ Add subtopic</button>
-    `;
-
-    topicContainer.appendChild(card);
-  });
-
-  document.querySelectorAll(".topic-input").forEach(input => {
-      input.addEventListener("input", (event) => {
-        const topicIndex = Number(event.currentTarget.dataset.topicIndex);
-        const newTitle = event.currentTarget.value;
-
-        updateTopicTitle(topicIndex, newTitle);
-        queueSaveCloudData(); 
-      })
-    });
-
-  document.querySelectorAll(".delete-topic-btn").forEach(button => {
-    button.addEventListener("click", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-      
-      const topicName = getState()[getCurrentWeek()][topicIndex].title || "this topic";
-
-      if(confirm(`Are you sure you want to delete "${topicName}" and all the subtopics?`)) {
-        deleteTopic(topicIndex); 
-        renderTopics(); 
-        queueSaveCloudData();
-      }
-    })
-  });
-
-  document.querySelectorAll(".add-sub-btn").forEach(button => {
-    button.addEventListener("click", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex);
-
-      addSubtopic(topicIndex);
-      renderTopics();
-      queueSaveCloudData();
-    })
-  });
-
-  document.querySelectorAll(".delete-subtopic-btn").forEach(button => {
-    button.addEventListener("click", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-      const subtopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-      const subtopicText = getState()[getCurrentWeek()][topicIndex].subtopics[subtopicIndex].text || "this subtopic";
-
-      if (confirm(`Are you sure you want to delete "${subtopicText}"?`)) {
-        deleteSubTopic(topicIndex, subtopicIndex); 
-        renderTopics();
-        queueSaveCloudData();
-      }
-      
-    })
-  });
-
-  document.querySelectorAll(".toggle-doubt-btn").forEach(button => {
-    button.addEventListener("click", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-      const subtopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-
-      toggleDoubt(topicIndex, subtopicIndex); 
-      renderTopics();
-      queueSaveCloudData();
-
-    })
-  })
-
-  document.querySelectorAll(".subtopic-input").forEach(input => {
-    input.addEventListener("input", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-      const subTopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-      const newSubTopicValue = event.currentTarget.value;
-
-      updateSubTopic(topicIndex, subTopicIndex, newSubTopicValue);
-      queueSaveCloudData(); 
-    })
-  });
-
-  
-
-  setTimeout(() => {
-    document.querySelectorAll('.subtopic-input').forEach(el => {
-      el.style.height = 'auto';
-      el.style.height = (el.scrollHeight + 8) + 'px';
-    });
-  }, 50);
-}
-
-// Summary Dashboard
-function renderSyllabusSummaryDashboard() {
-  const container = document.createElement('div');
-
-  (Object.keys(getState()))
-    .filter(k => k !== '_activeUsers')
-    .forEach(week => {
-      const weekSection = document.createElement('div');
-      weekSection.className = 'summary-week-section';
-      weekSection.innerHTML = `<h2 class="summary-week-title">${week}</h2>`;
-
-      getState()[week].forEach(topic => {
-        const topicCard = document.createElement('div');
-        topicCard.className = 'summary-topic-card';
-        
-        let subtopicsHtml = '';
-
-        topic.subtopics.forEach(sub => {
-          const doubtCount = sub.doubts ? sub.doubts.length : 0;
-          const studentNames = doubtCount > 0 
-            ? sub.doubts.map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ') 
-            : `<span class="no-doubt-tag">✅ Clear</span>`;
-
-          subtopicsHtml += `
-            <div class="summary-subtopic-row">
-              <div class="summary-subtopic-text">${sub.text}</div>
-              <div class="summary-subtopic-meta">
-                <span class="doubt-badge ${doubtCount > 0 ? 'has-doubts' : ''}">${doubtCount} Doubts</span>
-                <div class="student-list">${studentNames}</div>
-              </div>
-            </div>
-          `;
-        });
-
-        topicCard.innerHTML = `
-          <div class="summary-topic-header">${topic.title}</div>
-          <div class="summary-subtopics-list">${subtopicsHtml}</div>
-        `;
-
-        weekSection.appendChild(topicCard);
-      });
-
-      container.appendChild(weekSection);
-    });
-
-  topicContainer.appendChild(container);
-}
 
 addTopicBtn.onclick = () => {
   addTopic();
@@ -472,12 +223,7 @@ addTopicBtn.onclick = () => {
   queueSaveCloudData();
 };
 
-function render() {
-  userStatus.textContent = `User: ${getCurrentUser()}`;
-  renderActiveUsersHeader();
-  renderTabs();
-  renderTopics();
-}
+
 
 // Background Polling Every 5 Seconds
 setInterval(() => {
