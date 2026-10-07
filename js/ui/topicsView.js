@@ -29,8 +29,6 @@ function renderTopics() {
           <textarea 
             class="subtopic-input" 
             rows="1"
-            onfocus="isUserTyping=true"
-            onblur="isUserTyping=false"
             data-topic-index="${tIndex}" 
             data-subtopic-index="${sIndex}"
           >${sub.text}</textarea>
@@ -48,8 +46,6 @@ function renderTopics() {
         <input 
           class="topic-input" 
           value="${topic.title}" 
-          onfocus="isUserTyping=true"
-          onblur="isUserTyping=false"
           data-topic-index="${tIndex}"
         />
         <button class="icon-btn delete-topic-btn" data-topic-index="${tIndex}">Delete Topic</button>
@@ -60,80 +56,6 @@ function renderTopics() {
 
     topicContainer.appendChild(card);
   });
-
-  document.querySelectorAll(".topic-input").forEach(input => {
-      input.addEventListener("input", (event) => {
-        const topicIndex = Number(event.currentTarget.dataset.topicIndex);
-        const newTitle = event.currentTarget.value;
-
-        updateTopicTitle(topicIndex, newTitle);
-        queueSaveCloudData(); 
-      })
-    });
-
-  document.querySelectorAll(".delete-topic-btn").forEach(button => {
-    button.addEventListener("click", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-      
-      const topicName = getState()[getCurrentWeek()][topicIndex].title || "this topic";
-
-      if(confirm(`Are you sure you want to delete "${topicName}" and all the subtopics?`)) {
-        deleteTopic(topicIndex); 
-        renderTopics(); 
-        queueSaveCloudData();
-      }
-    })
-  });
-
-  document.querySelectorAll(".add-sub-btn").forEach(button => {
-    button.addEventListener("click", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex);
-
-      addSubtopic(topicIndex);
-      renderTopics();
-      queueSaveCloudData();
-    })
-  });
-
-  document.querySelectorAll(".delete-subtopic-btn").forEach(button => {
-    button.addEventListener("click", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-      const subtopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-      const subtopicText = getState()[getCurrentWeek()][topicIndex].subtopics[subtopicIndex].text || "this subtopic";
-
-      if (confirm(`Are you sure you want to delete "${subtopicText}"?`)) {
-        deleteSubTopic(topicIndex, subtopicIndex); 
-        renderTopics();
-        queueSaveCloudData();
-      }
-      
-    })
-  });
-
-  document.querySelectorAll(".toggle-doubt-btn").forEach(button => {
-    button.addEventListener("click", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-      const subtopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-
-      toggleDoubt(topicIndex, subtopicIndex); 
-      renderTopics();
-      queueSaveCloudData();
-
-    })
-  })
-
-  document.querySelectorAll(".subtopic-input").forEach(input => {
-    input.addEventListener("input", (event) => {
-      const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-      const subTopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-      const newSubTopicValue = event.currentTarget.value;
-
-      updateSubTopic(topicIndex, subTopicIndex, newSubTopicValue);
-      queueSaveCloudData(); 
-    })
-  });
-
-  
 
   setTimeout(() => {
     document.querySelectorAll('.subtopic-input').forEach(el => {

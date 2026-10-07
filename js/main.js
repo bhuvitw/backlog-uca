@@ -3,9 +3,7 @@ import { addSubtopic, deleteSubTopic, updateSubTopic } from "./domain/subTopics.
 import { addTopic, deleteTopic, updateTopicTitle } from "./domain/topics.js";
 import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWeek, setState } from "./state/appState.js";
 import { render } from "./ui/render.js";
-import { renderSyllabusSummaryDashboard } from "./ui/summaryView.js";
 import { renderTopics } from "./ui/topicsView.js";
-import { renderWeeks } from "./ui/weekView.js";
 
 // CONFIGURATION: JsonBin credentials
 const JSONBIN_BIN_ID = "6abe8ef4ffd5d160534359db";
@@ -14,9 +12,6 @@ const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6ux
 const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 // Global App State
-
-
-
 const SUMMARY_TAB_KEY = "📌 Complete Syllabus Summary";
 
 // Sync Control Flags
@@ -104,12 +99,12 @@ async function fetchCloudData(force = false) {
         setState(DEFAULT_SYLLABUS);
       }
       updateActivePresence();
-      render();
+      render(userStatus);
     }
   } catch (err) {
     console.error("Cloud fetch failed", err);
     if (!getState()["Week 1"]) setState(DEFAULT_SYLLABUS);
-    render();
+    render(userStatus);
   } finally {
     syncBtn.textContent = "🟢 Live";
   }
@@ -150,7 +145,7 @@ authBtn.onclick = () => {
     usernameInput.value = '';
     updateActivePresence();
     queueSaveCloudData();
-    render();
+    render(userStatus);
   }
 };
 
@@ -185,7 +180,7 @@ addWeekBtn.onclick = () => {
   setCurrentWeek(weekName);
   newWeekInput.value = '';
 
-  render();
+  render(userStatus);
   queueSaveCloudData();
 };
 
@@ -206,24 +201,16 @@ deleteWeekBtn.onclick = () => {
     const remainingWeeks = Object.keys(getState()).filter(k => k !== '_activeUsers');
     setCurrentWeek(remainingWeeks[0] || "Week 1");
 
-    render();
+    render(userStatus);
     queueSaveCloudData();
   }
 };
-
-// Render Sidebar Navigation Tabs
-
-
-// Render Main Document View
-
 
 addTopicBtn.onclick = () => {
   addTopic();
   renderTopics();
   queueSaveCloudData();
 };
-
-
 
 // Background Polling Every 5 Seconds
 setInterval(() => {

@@ -1,6 +1,6 @@
 import { getState,getCurrentWeek } from "../state/appState.js";
 
-function renderWeeks() {
+function renderWeeks(weekTabs) {
   weekTabs.innerHTML = '';
   const activeUsers = getActiveUsers();
 
