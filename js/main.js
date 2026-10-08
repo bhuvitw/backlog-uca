@@ -4,11 +4,7 @@ import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWee
 import { render } from "./ui/render.js";
 import { renderTopics } from "./ui/topicsView.js";
 
-// CONFIGURATION: JsonBin credentials
-const JSONBIN_BIN_ID = "6abe8ef4ffd5d160534359db";
-const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
 
-const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 // Sync Control Flags
 let saveDebounceTimer = null;

@@ -1,5 +1,6 @@
 import { updateActivePresence } from "../domain/presence.js";
 import { updateTopicTitle } from "../domain/topics.js";
+import { saveData } from "../services/sharedDataService.js";
 import { setCurrentUser, setCurrentWeek } from "../state/appState.js";
 import { render } from "../ui/render.js";
 
@@ -43,6 +44,7 @@ function setupEvents() {
         toggleDoubt(topicIndex, subtopicIndex); 
         render()
         //save
+        saveData()
         })
     })
 
@@ -56,6 +58,7 @@ function setupEvents() {
             deleteSubTopic(topicIndex, subtopicIndex); 
             render();
             //save
+            saveData();
         }
         
         })
@@ -68,6 +71,7 @@ function setupEvents() {
         addSubtopic(topicIndex);
         render();
         //save
+        saveData();
         })
     });
 
@@ -81,12 +85,10 @@ function setupEvents() {
             deleteTopic(topicIndex); 
             render()
             // save
+            saveData()
         }
         })
     });
-
-
-
 }
 
 export { setupEvents };
