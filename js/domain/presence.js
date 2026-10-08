@@ -1,3 +1,6 @@
+import { getCurrentUser } from "../state/appState.js";
+import { getCurrentWeek } from "../state/appState.js";
+import { setState } from "../state/appState.js";
 import { getState } from "../state/appState.js";
 
 function getActiveUsers() {
@@ -21,4 +24,17 @@ function getActiveUsers() {
         }));
 };
 
-export { getActiveUsers };
+function updateActivePresence() {
+    const  state = getState();
+
+    if (!state._activeUsers) state._activeUsers = {};
+
+    state._activeUsers[getCurrentUser()] = {
+        lastSeen: Date.now(),
+        week: getCurrentWeek()
+    };
+
+    setState(state)
+}
+
+export { getActiveUsers,updateActivePresence };

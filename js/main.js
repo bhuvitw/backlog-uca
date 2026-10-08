@@ -1,4 +1,4 @@
-
+import { updateActivePresence } from "./domain/presence.js";
 import { addTopic} from "./domain/topics.js";
 import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWeek, setState } from "./state/appState.js";
 import { render } from "./ui/render.js";
@@ -37,15 +37,6 @@ const DEFAULT_SYLLABUS = {
     }
   ]
 };
-
-// Update Heartbeat for Active Presence
-function updateActivePresence() {
-  if (!getState()._activeUsers) setState()._activeUsers = {};
-  getState()._activeUsers[getCurrentUser()] = {
-    lastSeen: Date.now(),
-    week: getCurrentWeek()
-  };
-}
 
 // Filter Active Users (< 30s inactive)
 function getActiveUsers() {
