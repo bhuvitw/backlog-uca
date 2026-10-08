@@ -8,7 +8,7 @@ const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 async function saveData() {
     try { 
-        const response = await fethc(API_URL, {
+        const response = await fetch(API_URL, {
             method: "PUT", 
             headers: {
                 "Content-Type": "application/json",
