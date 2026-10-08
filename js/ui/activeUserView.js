@@ -1,7 +1,7 @@
 import { getActiveUsers } from "../domain/presence.js";
 import { getCurrentUser } from "../state/appState.js";
 
-function renderActiveUsersHeader() {
+function renderActiveUsersHeader(activeUsersCount, activeUsersTooltip) {
   const activeList = getActiveUsers();
   
   const count = activeList.length > 0 ? activeList.length : 1;

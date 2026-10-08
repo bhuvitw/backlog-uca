@@ -1,6 +1,5 @@
 import { getCurrentUser, getCurrentWeek, getState } from "../state/appState.js";
 
-
 function toggleDoubt(tIndex, sIndex) {
   if (!getState()[getCurrentWeek()][tIndex].subtopics[sIndex].doubts) {
     getState()[getCurrentWeek()][tIndex].subtopics[sIndex].doubts = [];

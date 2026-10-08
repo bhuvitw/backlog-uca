@@ -1,8 +1,23 @@
 import { updateActivePresence } from "../domain/presence.js";
-import { updateTopicTitle } from "../domain/topics.js";
-import { saveData } from "../services/sharedDataService.js";
-import { setCurrentUser, setCurrentWeek } from "../state/appState.js";
+import { updateTopicTitle, deleteTopic } from "../domain/topics.js";
+
+import { 
+    addSubtopic, 
+    deleteSubTopic, 
+    updateSubTopic 
+} from "../domain/subTopics.js";
+
+import { toggleDoubt } from "../domain/doubt.js";
+import { queueSaveData } from "../services/sharedDataService.js";
+
+import { 
+    getCurrentWeek, 
+    getState, 
+    setCurrentWeek 
+} from "../state/appState.js";
+
 import { render } from "../ui/render.js";
+
 
 function setupEvents() {
     document.querySelectorAll(".topic-input").forEach(input => {
@@ -11,6 +26,7 @@ function setupEvents() {
             const newTitle = event.currentTarget.value;
 
             updateTopicTitle(topicIndex, newTitle);
+            queueSaveData();
         })
     })
 
@@ -23,6 +39,7 @@ function setupEvents() {
             setCurrentWeek(week);
             updateActivePresence()
             render();
+            queueSaveData();
         });
     });
 
@@ -33,6 +50,7 @@ function setupEvents() {
         const newText = event.currentTarget.value;
 
         updateSubTopic(topicIndex, subTopicIndex, newText);
+        queueSaveData();
         })
     });
 
@@ -44,7 +62,7 @@ function setupEvents() {
         toggleDoubt(topicIndex, subtopicIndex); 
         render()
         //save
-        saveData()
+        queueSaveData()
         })
     })
 
@@ -58,7 +76,7 @@ function setupEvents() {
             deleteSubTopic(topicIndex, subtopicIndex); 
             render();
             //save
-            saveData();
+            queueSaveData();
         }
         
         })
@@ -71,7 +89,7 @@ function setupEvents() {
         addSubtopic(topicIndex);
         render();
         //save
-        saveData();
+        queueSaveData();
         })
     });
 
@@ -85,7 +103,7 @@ function setupEvents() {
             deleteTopic(topicIndex); 
             render()
             // save
-            saveData()
+            queueSaveData()
         }
         })
     });

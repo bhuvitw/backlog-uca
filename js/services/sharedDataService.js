@@ -6,25 +6,32 @@ const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6ux
 
 const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-async function saveData() {
-    try { 
-        const response = await fetch(API_URL, {
-            method: "PUT", 
-            headers: {
-                "Content-Type": "application/json",
-                "X-Master-Key": JSONBIN_API_KEY
-            },
-            body: JSON.stringify(getState())
-        });
+let saveDebounceTimer = null;
 
-        if(!response.ok) {
-            throw new Error(`Save failed: ${response.status}`)
+async function queueSaveData() {
+    clearTimeout(saveDebounceTimer);
+
+    saveDebounceTimer = setTimeout(async() => {
+        try { 
+            const response = await fetch(API_URL, {
+                method: "PUT", 
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": JSONBIN_API_KEY
+                },
+                body: JSON.stringify(getState())
+            });
+
+            if(!response.ok) {
+                throw new Error(`Save failed: ${response.status}`)
+            }
+
+            console.log("Data saved successfully");
+        } catch (error) {
+            console.error("cloud save failed", error); 
         }
-
-        console.log("Data saved successfully");
-    } catch (error) {
-        console.error("cloud save failed", error); 
-    }
+    },400)
+    
 }
 
-export { saveData };
+export { queueSaveData };

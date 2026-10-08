@@ -1,13 +1,17 @@
 import { updateActivePresence } from "./domain/presence.js";
 import { addTopic} from "./domain/topics.js";
+import { queueSaveData } from "./services/sharedDataService.js";
 import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWeek, setState } from "./state/appState.js";
 import { render } from "./ui/render.js";
-import { renderTopics } from "./ui/topicsView.js";
+import { SUMMARY_TAB_KEY } from "./utils/constant.js";
 
+const JSONBIN_BIN_ID = "6abe8ef4ffd5d160534359db";
+const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
 
+const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 // Sync Control Flags
-let saveDebounceTimer = null;
+
 let isSaving = false;
 let isUserTyping = false;
 
@@ -19,8 +23,6 @@ const addTopicBtn = document.getElementById('add-topic-btn');
 const newWeekInput = document.getElementById('new-week-input');
 const addWeekBtn = document.getElementById('add-week-btn');
 const deleteWeekBtn = document.getElementById('delete-week-btn');
-const activeUsersCount = document.getElementById('active-users-count');
-const activeUsersTooltip = document.getElementById('active-users-tooltip');
 
 // Default Fallback State
 const DEFAULT_SYLLABUS = {
@@ -34,31 +36,6 @@ const DEFAULT_SYLLABUS = {
   ]
 };
 
-// Filter Active Users (< 30s inactive)
-function getActiveUsers() {
-  if (!getState()._activeUsers) return [];
-  const now = Date.now();
-  
-  return Object.entries(getState()._activeUsers)
-    .filter(([_, data]) => {
-      const lastSeen = typeof data === 'number' ? data : data.lastSeen;
-      return now - lastSeen < 30000;
-    })
-    .map(([name, data]) => ({
-      name,
-      week: typeof data === 'object' && data.week ? data.week : "Week 1"
-    }));
-}
-
-// Render Top Bar Active Users Counter
-function renderActiveUsersHeader() {
-  const activeList = getActiveUsers();
-  const count = activeList.length > 0 ? activeList.length : 1;
-  const names = activeList.length > 0 ? activeList.map(u => u.name).join(', ') : getCurrentUser();
-
-  activeUsersCount.textContent = count;
-  activeUsersTooltip.textContent = `Active: ${names}`;
-}
 
 // Fetch Live Data from JsonBin
 async function fetchCloudData(force = false) {
@@ -90,30 +67,7 @@ async function fetchCloudData(force = false) {
 }
 
 // Push Data to JsonBin
-function queueSaveCloudData() {
-  syncBtn.textContent = "⏳ Saving...";
-  clearTimeout(saveDebounceTimer);
-  
-  saveDebounceTimer = setTimeout(async () => {
-    isSaving = true;
-    try {
-      await fetch(API_URL, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": JSONBIN_API_KEY
-        },
-        body: JSON.stringify(getState())
-      });
-      syncBtn.textContent = "🟢 Live";
-    } catch (err) {
-      console.error("Cloud save failed", err);
-      syncBtn.textContent = "🔴 Error";
-    } finally {
-      isSaving = false;
-    }
-  }, 400);
-}
+
 
 // User Authentication Input
 authBtn.onclick = () => {
@@ -123,14 +77,14 @@ authBtn.onclick = () => {
     localStorage.setItem('study_user', getCurrentUser());
     usernameInput.value = '';
     updateActivePresence();
-    queueSaveCloudData();
+    queueSaveData();
     render();
   }
 };
 
 syncBtn.onclick = () => {
   updateActivePresence();
-  queueSaveCloudData();
+  queueSaveData();
   fetchCloudData(true);
 };
 
@@ -160,7 +114,7 @@ addWeekBtn.onclick = () => {
   newWeekInput.value = '';
 
   render();
-  queueSaveCloudData();
+  queueSaveData();
 };
 
 // Fixed Delete Current Week Logic
@@ -181,14 +135,16 @@ deleteWeekBtn.onclick = () => {
     setCurrentWeek(remainingWeeks[0] || "Week 1");
 
     render();
-    queueSaveCloudData();
+    queueSaveData();
   }
 };
 
+
+
 addTopicBtn.onclick = () => {
   addTopic();
-  renderTopics();
-  queueSaveCloudData();
+  render()
+  queueSaveData();
 };
 
 // Background Polling Every 5 Seconds
