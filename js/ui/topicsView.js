@@ -1,6 +1,13 @@
 import { getState, getCurrentUser,getCurrentWeek } from "../state/appState.js";
+import { SUMMARY_TAB_KEY } from "../utils/constant.js";
+import { renderSyllabusSummaryDashboard } from "./summaryView.js";
 
-function renderTopics() {
+function renderTopics(
+  currentWeekTitle,
+  topicContainer,
+  addTopicBtn,
+  deleteWeekBtn
+) {
   currentWeekTitle.textContent = getCurrentWeek();
   topicContainer.innerHTML = '';
 

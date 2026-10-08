@@ -1,4 +1,6 @@
+import { getActiveUsers } from "../domain/presence.js";
 import { getState,getCurrentWeek } from "../state/appState.js";
+import { SUMMARY_TAB_KEY } from "../utils/constant.js";
 
 function renderWeeks(weekTabs) {
   weekTabs.innerHTML = '';
@@ -12,7 +14,8 @@ function renderWeeks(weekTabs) {
 
       const li = document.createElement('li');
       li.className = `week-tab ${week === getCurrentWeek() ? 'active' : ''}`;
-      
+      li.dataset.week = week;
+
       const titleSpan = document.createElement('span');
       titleSpan.textContent = week;
       li.appendChild(titleSpan);
@@ -30,13 +33,6 @@ function renderWeeks(weekTabs) {
         li.appendChild(activeBadge);
       }
 
-      li.onclick = () => {
-        setCurrentWeek(week);
-        updateActivePresence();
-        queueSaveCloudData();
-        render();
-      };
-      
       weekTabs.appendChild(li);
     });
 
@@ -44,7 +40,8 @@ function renderWeeks(weekTabs) {
   const summaryUsers = activeUsers.filter(u => u.week === SUMMARY_TAB_KEY);
   const summaryLi = document.createElement('li');
   summaryLi.className = `week-tab summary-tab ${getCurrentWeek() === SUMMARY_TAB_KEY ? 'active' : ''}`;
-  
+  summaryLi.dataset.week = SUMMARY_TAB_KEY;
+
   const summarySpan = document.createElement('span');
   summarySpan.textContent = SUMMARY_TAB_KEY;
   summaryLi.appendChild(summarySpan);
@@ -55,13 +52,6 @@ function renderWeeks(weekTabs) {
     activeBadge.textContent = `🟢 ${summaryUsers.map(u => u.name).join(', ')}`;
     summaryLi.appendChild(activeBadge);
   }
-
-  summaryLi.onclick = () => {
-    setCurrentWeek(SUMMARY_TAB_KEY);
-    updateActivePresence();
-    queueSaveCloudData();
-    render();
-  };
   
   weekTabs.appendChild(summaryLi);
 };
