@@ -33,8 +33,6 @@ function renderWeeks(weekTabs) {
         li.appendChild(activeBadge);
       }
 
-      
-      
       weekTabs.appendChild(li);
     });
 
