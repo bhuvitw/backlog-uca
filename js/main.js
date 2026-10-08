@@ -1,6 +1,5 @@
-import { toggleDoubt } from "./domain/doubt.js";
-import { addSubtopic, deleteSubTopic, updateSubTopic } from "./domain/subTopics.js";
-import { addTopic, deleteTopic, updateTopicTitle } from "./domain/topics.js";
+
+import { addTopic} from "./domain/topics.js";
 import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWeek, setState } from "./state/appState.js";
 import { render } from "./ui/render.js";
 import { renderTopics } from "./ui/topicsView.js";
@@ -11,22 +10,15 @@ const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6ux
 
 const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-// Global App State
-const SUMMARY_TAB_KEY = "📌 Complete Syllabus Summary";
-
 // Sync Control Flags
 let saveDebounceTimer = null;
 let isSaving = false;
 let isUserTyping = false;
 
 // DOM Elements
-const userStatus = document.getElementById('user-status');
 const usernameInput = document.getElementById('username-input');
 const authBtn = document.getElementById('auth-btn');
 const syncBtn = document.getElementById('sync-btn');
-const weekTabs = document.getElementById('week-tabs');
-const currentWeekTitle = document.getElementById('current-week-title');
-const topicContainer = document.getElementById('topic-container');
 const addTopicBtn = document.getElementById('add-topic-btn');
 const newWeekInput = document.getElementById('new-week-input');
 const addWeekBtn = document.getElementById('add-week-btn');
@@ -99,12 +91,12 @@ async function fetchCloudData(force = false) {
         setState(DEFAULT_SYLLABUS);
       }
       updateActivePresence();
-      render(userStatus);
+      render();
     }
   } catch (err) {
     console.error("Cloud fetch failed", err);
     if (!getState()["Week 1"]) setState(DEFAULT_SYLLABUS);
-    render(userStatus);
+    render();
   } finally {
     syncBtn.textContent = "🟢 Live";
   }
@@ -145,7 +137,7 @@ authBtn.onclick = () => {
     usernameInput.value = '';
     updateActivePresence();
     queueSaveCloudData();
-    render(userStatus);
+    render();
   }
 };
 
@@ -180,7 +172,7 @@ addWeekBtn.onclick = () => {
   setCurrentWeek(weekName);
   newWeekInput.value = '';
 
-  render(userStatus);
+  render();
   queueSaveCloudData();
 };
 
@@ -201,7 +193,7 @@ deleteWeekBtn.onclick = () => {
     const remainingWeeks = Object.keys(getState()).filter(k => k !== '_activeUsers');
     setCurrentWeek(remainingWeeks[0] || "Week 1");
 
-    render(userStatus);
+    render();
     queueSaveCloudData();
   }
 };
