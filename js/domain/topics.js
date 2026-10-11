@@ -1,4 +1,4 @@
-import { getCurrentWeek, getState } from "../state/appState.js";
+import { getCurrentUser, getCurrentWeek, getState } from "../state/appState.js";
 
 function updateTopicTitle(tIndex, newTitle) {
     getState()[getCurrentWeek()][tIndex].title = newTitle; 
@@ -11,6 +11,7 @@ function deleteTopic(tIndex) {
 function addTopic() {
     const week = getCurrentWeek(); 
     const state = getState(); 
+    const currentUser = getCurrentUser(); 
 
     if(!state[week]) {
         state[week] = [];
@@ -19,10 +20,12 @@ function addTopic() {
     state[week].push({
         id: Date.now(),
         title: "New Main Topic",
+        createdBy: currentUser,
         subtopics: [
             {
                 id: Date.now() + 1,
                 text: "New Subtopic",
+                createdBy: currentUser,
                 doubts: [] 
             }
         ]

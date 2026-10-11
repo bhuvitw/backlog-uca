@@ -1,7 +1,16 @@
-import { getCurrentWeek, getState } from "../state/appState.js";
+import { getCurrentUser, getCurrentWeek, getState } from "../state/appState.js";
 
 function addSubtopic(tIndex) {
-    getState()[getCurrentWeek()][tIndex].subtopics.push({ id: Date.now(), text: "New Subtopic", doubts: [] }); 
+    const state = getState(); 
+    const currentWeek = getCurrentWeek(); 
+    const currentUser = getCurrentUser
+    
+    state[currentWeek][tIndex].subtopics.push({
+        id: Date.now(),
+        text: "New Subtopic",
+        createdBy: currentUser,
+        doubts: []
+    })
 }
 
 function updateSubTopic(tIndex, sIndex, val) {

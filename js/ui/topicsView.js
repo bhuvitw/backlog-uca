@@ -27,9 +27,13 @@ function renderTopics(
     const card = document.createElement('div');
     card.className = 'topic-card';
 
+    // Check ownership (fallback to true for older data without a createdBy field)
+    const isTopicOwner = topic.createdBy === getCurrentUser() || !topic.createdBy;
+
     const subtopicsHtml = topic.subtopics.map((sub, sIndex) => {
       const hasDoubt = sub.doubts ? sub.doubts.includes(getCurrentUser()) : false;
       const doubtTags = (sub.doubts || []).map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ');
+      const isSubOwner = sub.createdBy === getCurrentUser() || !sub.createdBy;
 
       return `
         <div class="subtopic-item">
@@ -38,11 +42,12 @@ function renderTopics(
             rows="1"
             data-topic-index="${tIndex}" 
             data-subtopic-index="${sIndex}"
+            ${isSubOwner ? '' : 'readonly'} 
           >${sub.text}</textarea>
           <div class="subtopic-actions">
             ${doubtTags}
             <button class="icon-btn toggle-doubt-btn" data-topic-index="${tIndex}" data-subtopic-index="${sIndex}">${hasDoubt ? '❌ Clear' : '🙋 Doubt'}</button>
-            <button class="icon-btn delete-subtopic-btn" data-topic-index="${tIndex}" data-subtopic-index="${sIndex}">🗑️ Delete</button>
+            <button class="icon-btn delete-subtopic-btn" style="display: ${isSubOwner ? 'inline-block' : 'none'};" data-topic-index="${tIndex}" data-subtopic-index="${sIndex}">🗑️ Delete</button>
           </div>
         </div>
       `;
@@ -54,11 +59,12 @@ function renderTopics(
           class="topic-input" 
           value="${topic.title}" 
           data-topic-index="${tIndex}"
+          ${isTopicOwner ? '' : 'readonly'}
         />
-        <button class="icon-btn delete-topic-btn" data-topic-index="${tIndex}">Delete Topic</button>
+        <button class="icon-btn delete-topic-btn" style="display: ${isTopicOwner ? 'inline-block' : 'none'};" data-topic-index="${tIndex}">Delete Topic</button>
       </div>
       <div class="subtopics-list">${subtopicsHtml}</div>
-      <button class="add-sub-btn" data-topic-index="${tIndex}">+ Add subtopic</button>
+      <button class="add-sub-btn" data-topic-index="${tIndex}" style="display: ${isTopicOwner ? 'inline-block' : 'none'};">+ Add subtopic</button>
     `;
 
     topicContainer.appendChild(card);
