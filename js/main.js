@@ -40,7 +40,8 @@ if (ui.authBtn && ui.syncBtn) {
         const weekName = ui.newWeekInp.value.trim();
         if (!weekName || getState()[weekName]) return alert("Invalid or duplicate week!");
         
-        getState()[weekName] = [{ id: Date.now(), title: "New Main Topic", subtopics: [{ id: Date.now() + 1, text: "New Subtopic", doubts: [] }] }];
+        const currentUser = getCurrentUser();
+        getState()[weekName] = [{ id: Date.now(), title: "New Main Topic", createdBy: currentUser, subtopics: [{ id: Date.now() + 1, text: "New Subtopic", doubts: [] }] }];
         setCurrentWeek(weekName);
         ui.newWeekInp.value = '';
         queueSaveData();
@@ -51,6 +52,14 @@ if (ui.authBtn && ui.syncBtn) {
   if(ui.delWeekBtn) {
       ui.delWeekBtn.onclick = () => {
         if (getCurrentWeek() === SUMMARY_TAB_KEY) return;
+
+        const weekData = getState()[getCurrentWeek()];
+        if (weekData && weekData.length > 0 && weekData[0].createdBy) {
+            if (weekData[0].createdBy !== getCurrentUser()) {
+                return alert("Access Denied: You can only delete weeks that you created!");
+            }
+        }
+
         const keys = Object.keys(getState()).filter(k => k !== '_activeUsers');
         if (keys.length <= 1) return alert("Cannot delete the last week!");
 

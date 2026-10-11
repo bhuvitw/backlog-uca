@@ -26,7 +26,7 @@ body {
   font-size: 14px;
 }
 
-/* Top Navigation */
+/* --- Top Navigation --- */
 .nav {
   display: flex;
   justify-content: space-between;
@@ -104,10 +104,62 @@ body {
   font-size: 11px;
 }
 
-/* Layout Workspace */
+/* --- Navigation Links --- */
+.nav-link {
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: var(--accent-blue-bg);
+  transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #dbeafe;
+}
+
+/* --- Avatar CSS --- */
+.avatar-group {
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+}
+
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+  border: 2px solid var(--bg-main);
+  margin-left: -10px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.avatar-circle:hover {
+  z-index: 10;
+  transform: translateY(-2px);
+}
+
+.avatar-count {
+  background: #e2e8f0;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* --- Layout Workspace --- */
 .workspace {
   display: flex;
   min-height: calc(100vh - 50px);
+  position: relative;
+  overflow-x: hidden;
 }
 
 .sidebar {
@@ -130,7 +182,6 @@ body {
   list-style: none;
 }
 
-/* Tab Active Indicator Styling */
 .week-tab {
   display: flex;
   justify-content: space-between;
@@ -171,7 +222,6 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Sidebar Add Week Form */
 .add-week-box {
   margin-top: 16px;
   padding-top: 12px;
@@ -195,12 +245,13 @@ body {
   font-size: 12px;
 }
 
-/* Document Container */
+/* --- Document Container --- */
 .document {
   flex: 1;
-  padding: 40px 48px;
-  max-width: 900px;
-  width: 100%;
+  padding: 60px 80px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  min-height: 100vh;
 }
 
 .doc-header {
@@ -232,11 +283,12 @@ body {
 }
 
 .topic-card {
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
-  padding: 12px;
-  margin-bottom: 16px;
-  background: #fff;
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  border-radius: 0;
+  padding: 16px 0;
+  margin-bottom: 24px;
+  background: transparent;
 }
 
 .card-header {
@@ -248,12 +300,14 @@ body {
 }
 
 .topic-input {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
   border: none;
-  width: 70%;
+  width: 80%;
   outline: none;
   background: transparent;
+  padding: 4px 0;
 }
 
 .topic-input:focus {
@@ -274,9 +328,10 @@ body {
 }
 
 .subtopics-list {
-  padding-left: 12px;
-  margin-top: 8px;
-  border-left: 2px solid var(--border-light);
+  padding-left: 20px;
+  margin-top: 12px;
+  border-left: none;
+  list-style-type: disc;
 }
 
 .subtopic-item {
@@ -292,19 +347,22 @@ body {
   min-width: 0;
   width: 100%;
   resize: none;
-  overflow: hidden; /* Scrollbars hide karne ke liye */
+  overflow: hidden;
   font-family: inherit;
-  font-size: 0.95rem;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  line-height: 1.4;
+  font-size: 15px;
+  line-height: 1.6;
+  border: 1px solid transparent;
+  padding: 4px 8px;
+  color: #37352f;
   box-sizing: border-box;
-  
-  /* Text wrapping fix taaki text hide na ho */
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: break-word;
+}
+
+.subtopic-input:hover, .subtopic-input:focus {
+  background: var(--bg-hover);
+  border-color: var(--border-light);
 }
 
 .subtopic-actions {
@@ -333,7 +391,7 @@ body {
   padding-left: 12px;
 }
 
-/* Summary View */
+/* --- Summary View --- */
 .summary-week-section {
   margin-bottom: 32px;
 }
@@ -411,163 +469,6 @@ body {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
-}
-
-/* Responsive Media Queries */
-@media (max-width: 768px) {
-  .nav {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    padding: 10px 14px;
-  }
-
-  .nav-brand {
-    font-size: 15px;
-  }
-
-  .user-auth {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .user-auth input, 
-  .user-auth button {
-    width: 100%;
-  }
-
-  .workspace {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-light);
-    padding: 12px 14px;
-  }
-
-  .week-tabs {
-    display: flex;
-    overflow-x: auto;
-    gap: 6px;
-    padding-bottom: 6px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .week-tab {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    margin-bottom: 0;
-  }
-
-  .add-week-box {
-    flex-direction: row;
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid var(--border-light);
-  }
-  
-  .add-week-box input {
-    flex: 1;
-    max-width: none;
-  }
-  
-  .add-week-box button {
-    width: auto;
-    white-space: nowrap;
-  }
-
-  .document {
-    padding: 16px 12px;
-    max-width: 100%;
-  }
-
-  .doc-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-
-  .doc-title-group {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .doc-header h1 {
-    font-size: 20px;
-  }
-
-  #add-topic-btn {
-    width: 100%;
-  }
-
-  .topic-card {
-    padding: 10px;
-  }
-
-  .card-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .topic-input {
-    width: 100%;
-    font-size: 14px;
-  }
-
-  .card-header .icon-btn {
-    align-self: flex-end;
-  }
-
-  .subtopic-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-    background: var(--bg-hover);
-    padding: 8px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-  }
-
-  .subtopic-input {
-    width: 100%;
-    font-size: 14px;
-  }
-
-  .subtopic-actions {
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px dashed var(--border-light);
-    padding-top: 6px;
-    margin-top: 2px;
-  }
-
-  .summary-subtopic-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .summary-subtopic-text {
-    width: 100%;
-  }
-
-  .summary-subtopic-meta {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-@media (max-width: 480px) {
-  .nav-brand {
-    font-size: 14px;
-  }
 }
 
 /* --- PERSONAL NOTES MODULE --- */
@@ -671,221 +572,22 @@ body {
   border-color: var(--accent-red-bg);
 }
 
-/* Navigation Links */
-.nav-link {
-  color: var(--accent-blue);
-  text-decoration: none;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 6px;
-  background-color: var(--accent-blue-bg);
-  transition: background-color 0.2s ease;
-}
+/* --- DISCUSSION PANEL & CHAT BUBBLES --- */
 
-.nav-link:hover {
-  background-color: #dbeafe; /* Slightly darker blue on hover */
-}
-
-/* Google Docs Style Avatar CSS */
-.avatar-group {
-  display: flex;
-  align-items: center;
-  padding-left: 10px; /* Space for negative margin */
-}
-
-.avatar-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 16px;
-  border: 2px solid var(--bg-main);
-  margin-left: -10px; /* Overlap effect like the image */
-  position: relative;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.avatar-circle:hover {
-  z-index: 10;
-  transform: translateY(-2px);
-}
-
-.avatar-count {
-  background: #e2e8f0;
-  color: var(--text-main);
-  font-weight: 600;
-  font-size: 12px;
-}
-
-/* Make Main Canvas look like an A4 Page */
-.document {
-  flex: 1;
-  padding: 60px 80px; /* Increased padding */
-  max-width: 900px;
-  width: 100%;
-  background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05); /* Subtle page shadow */
-  min-height: 100vh;
-}
-
-/* Remove heavy borders from Topic Cards to look like Docs headings */
-.topic-card {
-  border: none; /* Removed border */
-  border-bottom: 1px solid var(--border-light); /* Just a subtle separator */
-  border-radius: 0;
-  padding: 16px 0; /* Adjusted padding */
-  margin-bottom: 24px;
-  background: transparent;
-}
-
-/* Make Topic Title look like an H2 inside a Document */
-.topic-input {
-  font-size: 20px; /* Larger font */
-  font-weight: 700;
-  color: var(--text-main);
-  border: none;
-  width: 80%;
-  outline: none;
-  background: transparent;
-  padding: 4px 0;
-}
-
-/* Make subtopics look like bullet points / paragraphs */
-.subtopics-list {
-  padding-left: 20px; /* Indent like a list */
-  margin-top: 12px;
-  border-left: none; /* Removed the heavy left line */
-  list-style-type: disc; /* Optional: adds a natural list feel */
-}
-
-.subtopic-input {
-  font-size: 15px;
-  line-height: 1.6;
-  border: 1px solid transparent; /* Hidden border until hover/focus */
-  padding: 4px 8px;
-  color: #37352f;
-}
-
-.subtopic-input:hover, .subtopic-input:focus {
-  background: var(--bg-hover);
-  border-color: var(--border-light);
-}
-
-/* Right Discussion Panel Layout */
+/* Default Desktop View (Permanent Side Panel) */
 .discussion-panel {
-  width: 300px;
+  width: 350px;
   border-left: 1px solid var(--border-light);
-  background: #fafafa;
+  background-color: #fafafa;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  height: calc(100vh - 50px);
-  position: sticky;
-  top: 50px;
-}
-
-.discuss-header {
-  padding: 16px;
-  border-bottom: 1px solid var(--border-light);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.discuss-messages {
-  flex: 1;
-  padding: 16px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.discuss-input-area {
-  padding: 12px;
-  border-top: 1px solid var(--border-light);
-  display: flex;
-  gap: 8px;
-  background: #fff;
-}
-
-.discuss-input-area input {
-  flex: 1;
-  padding: 6px 8px;
-  border: 1px solid var(--border-light);
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-.mobile-floating-btn, .mobile-only {
-  display: none;
-}
-
-@media (max-width: 1024px) {
-  .discussion-panel {
-    display: none; /* Can be toggled with mobile button */
-  }
-  .mobile-floating-btn {
-    display: block;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-  }
-}
-
-/* --- DISCUSSION PANEL LAYOUT & ANIMATIONS --- */
-.workspace {
-  position: relative;
-  overflow-x: hidden; /* Prevents horizontal scroll when panel is hidden */
-}
-
-/* Floating Action Button from Wireframe */
-.mobile-floating-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background-color: var(--text-main);
-  color: #ffffff;
-  border: none;
-  border-radius: 24px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  z-index: 1000;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.mobile-floating-btn:hover {
-  transform: translateY(-2px);
-  background-color: #000000;
-}
-
-/* The Sliding Panel */
-.discussion-panel {
-  position: fixed;
-  top: 65px; /* Offset for the top nav */
-  right: -400px; /* Hidden off-screen by default */
-  width: 350px;
   height: calc(100vh - 65px);
-  background-color: #ffffff;
-  border-left: 1px solid var(--border-light);
-  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: sticky;
+  top: 65px;
+  transition: right 0.3s ease;
   z-index: 900;
-}
-
-/* Class toggled by JavaScript to slide the panel in */
-.discussion-panel.open {
-  right: 0; 
+  right: 0;
 }
 
 .discuss-header {
@@ -936,16 +638,13 @@ body {
 .discuss-input-area button {
   border-radius: 20px;
   padding: 8px 16px;
+  cursor: pointer;
 }
 
-/* Responsive Overrides for Mobile View */
-@media (max-width: 768px) {
-  .discussion-panel {
-    top: 110px; /* Adjust for stacked mobile nav */
-    height: calc(100vh - 110px);
-    width: 100%; /* Take up full screen width on mobile as per wireframe */
-    right: -100%;
-  }
+/* Hide mobile toggles on Desktop */
+.mobile-floating-btn,
+.mobile-only {
+  display: none;
 }
 
 /* --- CHAT BUBBLES --- */
@@ -982,4 +681,211 @@ body {
 
 .chat-meta.self {
   text-align: right;
+}
+
+/* --- RESPONSIVE MEDIA QUERIES --- */
+
+@media (max-width: 1024px) {
+  /* Tablet View - Convert Discussion Panel to Sliding Overlay */
+  .discussion-panel {
+    position: fixed;
+    right: -400px;
+    background-color: #ffffff;
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .discussion-panel.open {
+    right: 0;
+  }
+
+  .mobile-only {
+    display: inline-block;
+  }
+
+  .mobile-floating-btn {
+    display: block;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background-color: var(--text-main);
+    color: #ffffff;
+    border: none;
+    border-radius: 24px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+
+  .mobile-floating-btn:hover {
+    transform: translateY(-2px);
+    background-color: #000000;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Mobile View Container Layout overrides */
+  .nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .nav-brand {
+    font-size: 15px;
+  }
+
+  .user-auth {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .user-auth input, 
+  .user-auth button {
+    width: 100%;
+  }
+
+  .workspace {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+    padding: 12px 14px;
+  }
+
+  .week-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .week-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
+
+  .add-week-box {
+    flex-direction: row;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .add-week-box input {
+    flex: 1;
+    max-width: none;
+  }
+
+  .add-week-box button {
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .document {
+    padding: 16px 12px;
+  }
+
+  .doc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .doc-title-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .doc-header h1 {
+    font-size: 20px;
+  }
+
+  #add-topic-btn {
+    width: 100%;
+  }
+
+  .topic-card {
+    padding: 10px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .topic-input {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .card-header .icon-btn {
+    align-self: flex-end;
+  }
+
+  .subtopic-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    background: var(--bg-hover);
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .subtopic-input {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .subtopic-actions {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dashed var(--border-light);
+    padding-top: 6px;
+    margin-top: 2px;
+  }
+
+  .summary-subtopic-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .summary-subtopic-text {
+    width: 100%;
+  }
+
+  .summary-subtopic-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Expand Discussion Panel to full width on mobile */
+  .discussion-panel {
+    top: 110px;
+    height: calc(100vh - 110px);
+    width: 100%;
+    right: -100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-brand {
+    font-size: 14px;
+  }
 }

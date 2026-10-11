@@ -19,9 +19,17 @@ function renderTopics(
   }
 
   addTopicBtn.style.display = "block";
-  deleteWeekBtn.style.display = "inline-block";
 
   if (!getState()[getCurrentWeek()]) return;
+
+  const currentWeekData = getState()[getCurrentWeek()];
+  let isWeekOwner = true; // Fallback to true for older data created before this fix
+  if (currentWeekData.length > 0 && currentWeekData[0].createdBy) {
+      isWeekOwner = currentWeekData[0].createdBy === getCurrentUser();
+  }
+
+  // Only show the delete button if the current user owns the week
+  deleteWeekBtn.style.display = isWeekOwner ? "inline-block" : "none";
 
   getState()[getCurrentWeek()].forEach((topic, tIndex) => {
     const card = document.createElement('div');
