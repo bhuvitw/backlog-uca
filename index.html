@@ -1,75 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Study Space — Live Sync</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared Backlog Workspace</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Top Navigation -->
+  <!-- Top Navigation matching your current screenshot -->
   <nav class="nav">
-    <div class="nav-brand">📝 Shared Backlog Workspace</div>
-    <a href="notes.html" class="nav-link">📓 Personal Notes</a>
+    <div class="nav-brand">📋 Shared Backlog Workspace</div>
     <div class="user-auth">
-      <!-- Active Users Counter -->
-      <div id="active-users-badge" class="active-users-badge" title="Active users in last 30s">
-        🟢 <span id="active-users-count">1</span> Active
-        <div id="active-users-tooltip" class="active-users-tooltip">Active: You</div>
+      <a href="notes.html" class="nav-link">📝 Personal Notes</a>
+      <span id="user-status">User: anonymous</span>
+      <div id="active-users-badge" class="active-users-badge">
+        <span id="active-users-count">1</span>
+        <span id="active-users-tooltip" class="active-users-tooltip">Active: anonymous</span>
       </div>
-
-      <span id="user-status">User: Anonymous</span>
       <input type="text" id="username-input" placeholder="Enter name..." />
       <button id="auth-btn">Set Name</button>
-      <button id="sync-btn" title="Manual Sync">🔄 Syncing...</button>
+      <button id="sync-btn" class="icon-btn">🟢 Live</button>
     </div>
   </nav>
 
   <div class="workspace">
-    <!-- Sidebar Navigation -->
+    <!-- Left Sidebar Navigation -->
     <aside class="sidebar">
       <div class="sidebar-title">NAVIGATION</div>
-      <ul id="week-tabs" class="week-tabs">
-        <!-- Rendered by JS -->
-      </ul>
-
-      <!-- New Week Controls -->
+      <ul id="week-tabs" class="week-tabs"></ul>
       <div class="add-week-box">
         <input type="text" id="new-week-input" placeholder="e.g. Week 7" />
         <button id="add-week-btn" class="add-btn">+ Add Week</button>
       </div>
     </aside>
 
-    <!-- Main Canvas -->
+    <!-- Middle Main Canvas -->
     <main class="document">
       <div class="doc-header">
         <div class="doc-title-group">
           <h1 id="current-week-title">Loading...</h1>
-          <button id="delete-week-btn" class="icon-btn delete-week-btn" title="Delete current week">🗑️ Delete Week</button>
+          <button id="delete-week-btn" class="icon-btn delete-week-btn">🗑️ Delete Week</button>
         </div>
         <button id="add-topic-btn" class="add-btn">+ Add Main Topic</button>
       </div>
-
-      <!-- Topics Container / Summary Container -->
-      <div id="topic-container" class="topic-container">
-        <!-- Rendered by JS -->
-      </div>
+      <div id="topic-container" class="topic-container"></div>
     </main>
+
+    <!-- Right Discussion Panel from your Wireframe -->
+    <aside class="discussion-panel" id="discussion-panel">
+      <div class="discuss-header">
+        <h3>💬 <span id="discuss-week-label">Week 1</span></h3>
+        <button id="close-discuss-btn" class="icon-btn mobile-only">✖</button>
+      </div>
+      <div class="discuss-messages" id="discuss-messages">
+        <!-- Chat bubbles go here -->
+      </div>
+      <div class="discuss-input-area">
+        <input type="text" id="week-discuss-input" placeholder="Type a message..." />
+        <button id="post-week-comment-btn" class="add-btn">Post</button>
+      </div>
+    </aside>
+
+    <!-- Mobile Floating Button -->
+    <button id="mobile-discuss-toggle" class="mobile-floating-btn">💬 Discussion</button>
   </div>
 
-  
-
-  <script type="module" src="./js/main.js"></script>
-  <script>
-    // Register Service Worker for Offline Assets
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker registered!'))
-          .catch(err => console.log('Service Worker failed:', err));
-      });
-    }
-  </script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

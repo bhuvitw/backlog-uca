@@ -774,3 +774,176 @@ body {
   background: var(--bg-hover);
   border-color: var(--border-light);
 }
+
+/* Right Discussion Panel Layout */
+.discussion-panel {
+  width: 300px;
+  border-left: 1px solid var(--border-light);
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: calc(100vh - 50px);
+  position: sticky;
+  top: 50px;
+}
+
+.discuss-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.discuss-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.discuss-input-area {
+  padding: 12px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  gap: 8px;
+  background: #fff;
+}
+
+.discuss-input-area input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.mobile-floating-btn, .mobile-only {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .discussion-panel {
+    display: none; /* Can be toggled with mobile button */
+  }
+  .mobile-floating-btn {
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+}
+
+/* --- DISCUSSION PANEL LAYOUT & ANIMATIONS --- */
+.workspace {
+  position: relative;
+  overflow-x: hidden; /* Prevents horizontal scroll when panel is hidden */
+}
+
+/* Floating Action Button from Wireframe */
+.mobile-floating-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: var(--text-main);
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.mobile-floating-btn:hover {
+  transform: translateY(-2px);
+  background-color: #000000;
+}
+
+/* The Sliding Panel */
+.discussion-panel {
+  position: fixed;
+  top: 65px; /* Offset for the top nav */
+  right: -400px; /* Hidden off-screen by default */
+  width: 350px;
+  height: calc(100vh - 65px);
+  background-color: #ffffff;
+  border-left: 1px solid var(--border-light);
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 900;
+}
+
+/* Class toggled by JavaScript to slide the panel in */
+.discussion-panel.open {
+  right: 0; 
+}
+
+.discuss-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fafafa;
+}
+
+.discuss-header h3 {
+  font-size: 16px;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.discuss-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: var(--bg-hover);
+}
+
+.discuss-input-area {
+  padding: 16px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  gap: 10px;
+  background-color: #ffffff;
+}
+
+.discuss-input-area input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  outline: none;
+}
+
+.discuss-input-area input:focus {
+  border-color: var(--text-main);
+}
+
+.discuss-input-area button {
+  border-radius: 20px;
+  padding: 8px 16px;
+}
+
+/* Responsive Overrides for Mobile View */
+@media (max-width: 768px) {
+  .discussion-panel {
+    top: 110px; /* Adjust for stacked mobile nav */
+    height: calc(100vh - 110px);
+    width: 100%; /* Take up full screen width on mobile as per wireframe */
+    right: -100%;
+  }
+}

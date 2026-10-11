@@ -30,7 +30,7 @@ function renderTopics(
     // Check ownership (fallback to true for older data without a createdBy field)
     const isTopicOwner = topic.createdBy === getCurrentUser() || !topic.createdBy;
 
-    const subtopicsHtml = topic.subtopics.map((sub, sIndex) => {
+    const subtopicsHtml = (topic.subtopics || []).map((sub, sIndex) => {
       const hasDoubt = sub.doubts ? sub.doubts.includes(getCurrentUser()) : false;
       const doubtTags = (sub.doubts || []).map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ');
       const isSubOwner = sub.createdBy === getCurrentUser() || !sub.createdBy;

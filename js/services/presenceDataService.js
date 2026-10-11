@@ -2,7 +2,13 @@ import { getCurrentUser, getCurrentWeek } from "../state/appState.js";
 
 const API_URL = `https://api.jsonbin.io/v3/b/6acb32adffd5d1605360be05`;
 const API_KEY = "\$2a\$10\$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
-const reqOpts = { headers: { "X-Master-Key": API_KEY } };
+const reqOpts = {
+    headers: { 
+        "Content-Type": "application/json",
+        "X-Master-Key": API_KEY 
+    }
+};
+
 
 const userAvatarMap = new Map();
 const PROFILES = [
