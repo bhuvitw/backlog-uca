@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Study Notes — Live Sync</title>
+  <!-- Link directly to the main stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="js/notes.js"></script>
+</head>
+<body>
+
+  <!-- Shared Top Navigation -->
+  <nav class="nav">
+    <div class="nav-brand">📝 Personal Notes</div>
+    <a href="index.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 500;">← Back to Shared Workspace</a>
+  </nav>
+
+  <!-- Reusing main workspace layout -->
+  <div class="workspace">
+    <main class="document" style="max-width: 800px; margin: 0 auto; padding-top: 32px;">
+      
+      <div class="doc-header">
+        <div class="doc-title-group">
+          <h1>Your Revision Notes</h1>
+        </div>
+      </div>
+
+      <!-- Note Creation Form -->
+      <form id="note-form" class="note-form">
+        <div class="input-group">
+          <label for="note-title">Note title</label>
+          <input id="note-title" type="text" maxlength="100" placeholder="e.g. JavaScript Promises" required>
+        </div>
+        
+        <div class="input-group">
+          <label for="note-content">Note content</label>
+          <textarea id="note-content" rows="5" placeholder="Write your revision notes..." required></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button id="save-btn" class="add-btn" type="submit">Add Note</button>
+          <button id="cancel-btn" class="icon-btn" type="button" hidden>Cancel Edit</button>
+        </div>
+      </form>
+
+      <!-- Rendered Notes Container -->
+      <section aria-labelledby="saved-heading" style="margin-top: 40px;">
+        <h2 id="saved-heading" class="summary-week-title">Saved Notes</h2>
+        <div id="notes-list" aria-live="polite"></div>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>
