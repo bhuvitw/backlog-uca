@@ -134,8 +134,9 @@ This modular structure makes the code easier to understand, debug, and extend th
 
 4. Open the application:
 
-   - Syllabus: [backlog-uca.vercel.app/](https://backlog-uca.vercel.app/)
-   - Personal Notes: [backlog-uca.vercel.app/notes.html](https://backlog-uca.vercel.app/notes.html)
+   - Syllabus: [http://localhost:8000/](http://localhost:8000/)
+   - Personal Notes: [http://localhost:8000/notes.html](http://localhost:8000/notes.html)
+
 Run the project through an HTTP server rather than opening the HTML files directly, because the application uses JavaScript ES modules.
 
 ## Data Storage
