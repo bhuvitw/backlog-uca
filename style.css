@@ -685,3 +685,92 @@ body {
 .nav-link:hover {
   background-color: #dbeafe; /* Slightly darker blue on hover */
 }
+
+/* Google Docs Style Avatar CSS */
+.avatar-group {
+  display: flex;
+  align-items: center;
+  padding-left: 10px; /* Space for negative margin */
+}
+
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+  border: 2px solid var(--bg-main);
+  margin-left: -10px; /* Overlap effect like the image */
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.avatar-circle:hover {
+  z-index: 10;
+  transform: translateY(-2px);
+}
+
+.avatar-count {
+  background: #e2e8f0;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Make Main Canvas look like an A4 Page */
+.document {
+  flex: 1;
+  padding: 60px 80px; /* Increased padding */
+  max-width: 900px;
+  width: 100%;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05); /* Subtle page shadow */
+  min-height: 100vh;
+}
+
+/* Remove heavy borders from Topic Cards to look like Docs headings */
+.topic-card {
+  border: none; /* Removed border */
+  border-bottom: 1px solid var(--border-light); /* Just a subtle separator */
+  border-radius: 0;
+  padding: 16px 0; /* Adjusted padding */
+  margin-bottom: 24px;
+  background: transparent;
+}
+
+/* Make Topic Title look like an H2 inside a Document */
+.topic-input {
+  font-size: 20px; /* Larger font */
+  font-weight: 700;
+  color: var(--text-main);
+  border: none;
+  width: 80%;
+  outline: none;
+  background: transparent;
+  padding: 4px 0;
+}
+
+/* Make subtopics look like bullet points / paragraphs */
+.subtopics-list {
+  padding-left: 20px; /* Indent like a list */
+  margin-top: 12px;
+  border-left: none; /* Removed the heavy left line */
+  list-style-type: disc; /* Optional: adds a natural list feel */
+}
+
+.subtopic-input {
+  font-size: 15px;
+  line-height: 1.6;
+  border: 1px solid transparent; /* Hidden border until hover/focus */
+  padding: 4px 8px;
+  color: #37352f;
+}
+
+.subtopic-input:hover, .subtopic-input:focus {
+  background: var(--bg-hover);
+  border-color: var(--border-light);
+}
