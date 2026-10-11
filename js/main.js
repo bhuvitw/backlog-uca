@@ -1,14 +1,12 @@
 import { updateActivePresence } from "./domain/presence.js";
 import { addTopic} from "./domain/topics.js";
-import { queueSaveData } from "./services/sharedDataService.js";
+import { 
+  fetchCloudData as fetchCloudRecord,
+  queueSaveData 
+} from "./services/sharedDataService.js";
 import { getCurrentUser, getCurrentWeek, getState, setCurrentUser, setCurrentWeek, setState } from "./state/appState.js";
 import { render } from "./ui/render.js";
 import { SUMMARY_TAB_KEY } from "./utils/constant.js";
-
-const JSONBIN_BIN_ID = "6abe8ef4ffd5d160534359db";
-const JSONBIN_API_KEY = "$2a$10$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
-
-const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 // Sync Control Flags
 
@@ -44,23 +42,22 @@ async function fetchCloudData(force = false) {
 
   syncBtn.textContent = "⏳ Syncing...";
   try {
-    const res = await fetch(`${API_URL}/latest`, {
-      headers: { "X-Master-Key": JSONBIN_API_KEY }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.record && Object.keys(data.record).length > 0) {
-        setState(data.record);
-      } else {
-        setState(DEFAULT_SYLLABUS);
-      }
-      updateActivePresence();
-      render();
+    const record = await fetchCloudRecord();
+
+    if (record && Object.keys(record).length > 0) {
+      setState(record);
+    }else {
+      setState(DEFAULT_SYLLABUS)
     }
+
+    updateActivePresence();
+    render();
   } catch (err) {
+
     console.error("Cloud fetch failed", err);
     if (!getState()["Week 1"]) setState(DEFAULT_SYLLABUS);
     render();
+
   } finally {
     syncBtn.textContent = "🟢 Live";
   }

@@ -9,18 +9,21 @@ function deleteTopic(tIndex) {
 }
 
 function addTopic() {
-    if(!getState()[getCurrentWeek()]) {
-        getState()[getCurrentWeek] = [];
+    const week = getCurrentWeek(); 
+    const state = getState(); 
+
+    if(!state[week]) {
+        state[week] = [];
     }
 
-    getState()[getCurrentWeek()].push({
+    state[week].push({
         id: Date.now(),
         title: "New Main Topic",
         subtopics: [
             {
                 id: Date.now() + 1,
-                title: "New Subtopic",
-                doubt: [] 
+                text: "New Subtopic",
+                doubts: [] 
             }
         ]
     })
