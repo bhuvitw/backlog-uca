@@ -9,30 +9,45 @@ const reqOpts = {
     }
 };
 
-
 const userAvatarMap = new Map();
 const PROFILES = [
   { emoji: '🐸', bg: '#d81b60' }, { emoji: '🐔', bg: '#e53935' }, { emoji: '🐮', bg: '#e06666' },
   { emoji: '🦖', bg: '#dcb888' }, { emoji: '🦘', bg: '#00796b' }, { emoji: '🐨', bg: '#8e24aa' }
 ];
 
+let presenceTimer = null;
+
 export async function fetchActiveUsers() {
     try {
         const res = await fetch(`${API_URL}/latest`, reqOpts);
         if (res.ok) updatePresenceUI((await res.json()).record._activeUsers || {});
-    } catch (err) {}
+    } catch (err) {
+        console.warn("Active users sync paused due to API limits.");
+    }
 }
 
 export async function broadcastPresence() {
-    try {
-        const res = await fetch(`${API_URL}/latest`, reqOpts);
-        const list = (await res.json()).record._activeUsers || {};
-        list[getCurrentUser()] = { lastSeen: Date.now(), week: getCurrentWeek() };
+    // Clear previous pending request if user clicks tabs quickly
+    if (presenceTimer) clearTimeout(presenceTimer);
 
-        await fetch(API_URL, { method: "PUT", ...reqOpts, body: JSON.stringify({ _activeUsers: list }) });
-        updatePresenceUI(list);
-    } catch (err) {}
+    // Wait 1.5 seconds after the last action before sending to the server
+    presenceTimer = setTimeout(async () => {
+        try {
+            const res = await fetch(`${API_URL}/latest`, reqOpts);
+            if (!res.ok) return; // Exit silently if rate-limited
+            
+            const list = (await res.json()).record._activeUsers || {};
+            list[getCurrentUser()] = { lastSeen: Date.now(), week: getCurrentWeek() };
+
+            await fetch(API_URL, { method: "PUT", ...reqOpts, body: JSON.stringify({ _activeUsers: list }) });
+            updatePresenceUI(list);
+        } catch (err) {
+            console.warn("Presence broadcast paused due to API limits.");
+        }
+    }, 1500); 
 }
+
+// ... keep your existing updatePresenceUI(list) function below this ...
 
 function updatePresenceUI(list) {
     const badge = document.getElementById('active-users-badge');

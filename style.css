@@ -947,3 +947,39 @@ body {
     right: -100%;
   }
 }
+
+/* --- CHAT BUBBLES --- */
+.chat-message {
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: 85%;
+  font-size: 13px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.chat-message.self {
+  background-color: var(--accent-blue-bg);
+  color: var(--accent-blue);
+  border: 1px solid #bfdbfe;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+
+.chat-message.other {
+  background-color: #ffffff;
+  color: var(--text-main);
+  border: 1px solid var(--border-light);
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.chat-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.chat-meta.self {
+  text-align: right;
+}
