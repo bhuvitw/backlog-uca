@@ -1,0 +1,2145 @@
+
+
+--- FILE: ./sw.js ---
+
+const CACHE_NAME = 'uca-backlog-v1';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './notes.html',
+  './style.css',
+  './js/main.js',
+  './js/notes.js'
+];
+
+// Install Event: Cache files
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
+  );
+});
+
+// Fetch Event: Serve from cache, fallback to network
+self.addEventListener('fetch', event => {
+  // Skip API requests (let IndexedDB handle JSONBin)
+  if (event.request.url.includes('api.jsonbin.io')) return;
+
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      return cachedResponse || fetch(event.request);
+    })
+  );
+});
+
+--- FILE: ./README.md ---
+
+# UCA Backlog
+
+**A collaborative syllabus and backlog management tool for students.**
+
+[**Live Demo**](https://backlog-uca.vercel.app/) · [Report a Bug](https://github.com/bhuvitw/backlog-uca/issues) · [Source Code](https://github.com/bhuvitw/backlog-uca)
+
+## Overview
+
+UCA Backlog is a web application designed to help students organize their academic syllabus, track topics and subtopics, record doubts, and maintain personal study notes in one place.
+
+The project started as a practical solution to a common student problem: finding and organizing syllabus information while preparing for classes, assessments, and viva examinations. It provides a shared space for syllabus organization alongside a separate area for personal notes.
+
+## Features
+
+### 1. Syllabus Management
+- Organize academic content week by week.
+- Create, edit, and delete main topics.
+- Break topics into subtopics.
+- Maintain doubts associated with study topics.
+- Access the shared syllabus data through cloud storage.
+
+### 2. Personal Study Notes
+- Create notes with a title and content.
+- View saved notes.
+- Edit existing notes.
+- Delete notes when they are no longer needed.
+- Store personal notes in the browser using `localStorage`.
+
+### 3. User Interface
+- Separate pages for syllabus management and personal notes.
+- Responsive layout for desktop, tablet, and mobile screens.
+- Shared styling across pages for a consistent interface.
+- JavaScript modules organized by responsibility.
+
+### 4. Data Management
+- Uses browser storage for personal notes.
+- Uses the JSONBin API for shared syllabus data.
+- Includes a save service that groups rapid save requests using a debounce.
+- Refreshes shared data periodically to help users see updates.
+
+> **Storage note:** Personal notes are stored locally in the browser. Shared syllabus data uses a cloud API. These are separate storage mechanisms.
+
+## Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| HTML5 | Page structure and forms |
+| CSS3 | Styling and responsive layouts |
+| Vanilla JavaScript (ES Modules) | Application logic, events, and rendering |
+| `localStorage` | Persistent personal notes |
+| JSONBin API | Shared syllabus data storage |
+| Vercel | Deployment |
+
+The application is built without frontend frameworks or external JavaScript libraries.
+
+## Project Structure
+
+```text
+backlog-uca/
+├── index.html
+├── notes.html
+├── style.css
+├── js/
+│   ├── domain/
+│   │   ├── doubt.js
+│   │   ├── presence.js
+│   │   ├── subTopics.js
+│   │   └── topics.js
+│   ├── events/
+│   │   └── events.js
+│   ├── services/
+│   │   └── sharedDataService.js
+│   ├── state/
+│   │   └── appState.js
+│   ├── ui/
+│   │   ├── activeUserView.js
+│   │   ├── render.js
+│   │   ├── summaryView.js
+│   │   ├── topicsView.js
+│   │   └── weekView.js
+│   ├── utils/
+│   │   └── constant.js
+│   └── main.js
+├── docs/
+│   └── day-01-architecture-notes.md
+├── .gitignore
+├── LICENSE
+└── README.md
+```
+
+*The tree above describes the main application files; additional files may exist in the repository.*
+
+## Architecture and Design
+
+The JavaScript code is divided into modules to keep responsibilities separate:
+
+- **Domain:** Operations involving topics, subtopics, doubts, and user presence.
+- **Events:** Connects user interactions to application actions.
+- **State:** Maintains the application's current data and selection state.
+- **Services:** Handles communication with the cloud data API.
+- **UI:** Renders topics, weekly views, summaries, and active-user information.
+- **Utilities:** Holds shared constants.
+
+This modular structure makes the code easier to understand, debug, and extend than keeping the entire application in a single JavaScript file.
+
+## Getting Started
+
+### Prerequisites
+
+- A modern web browser.
+- Git.
+- A local static HTTP server, such as the VS Code Live Server extension or Python's built-in HTTP server.
+- Valid cloud API configuration if you want to use shared syllabus synchronization.
+
+### Run Locally
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/bhuvitw/backlog-uca.git
+   ```
+
+2. Open the project directory:
+
+   ```bash
+   cd backlog-uca
+   ```
+
+3. Start a local HTTP server. For example, with Python:
+
+   ```bash
+   python3 -m http.server 8000
+   ```
+
+4. Open the application:
+
+   - Syllabus: [http://localhost:8000/](http://localhost:8000/)
+   - Personal Notes: [http://localhost:8000/notes.html](http://localhost:8000/notes.html)
+
+Run the project through an HTTP server rather than opening the HTML files directly, because the application uses JavaScript ES modules.
+
+## Data Storage
+
+### Shared Syllabus
+
+The shared syllabus is fetched from and saved to JSONBin through `js/services/sharedDataService.js`. The service handles API requests and debounces save operations to reduce unnecessary requests.
+
+### Personal Notes
+
+Personal notes are stored in the browser's `localStorage` under the key `uca_personal_notes`.
+
+Because notes are browser-local, they are not automatically shared across users or synchronized between different browsers and devices. Clearing browser storage can remove locally saved notes.
+
+## Security Considerations
+
+- Do not commit API master keys, passwords, or other secrets to the repository.
+- A privileged API key embedded in browser-side JavaScript is visible to anyone using the application.
+- For production use, privileged API requests should be handled through a secure server-side component or replaced with an appropriately restricted client-safe configuration.
+
+## Project Goals
+
+- Make syllabus information easier to organize and access.
+- Help students break large topics into manageable subtopics.
+- Keep doubts and personal revision notes organized.
+- Practice core web development concepts using HTML, CSS, and JavaScript.
+- Apply modular code organization, browser storage, CRUD operations, API integration, and responsive design.
+
+## Future Improvements
+
+- Add search and filtering for topics and notes.
+- Improve error and synchronization status feedback.
+- Add export and backup options for personal notes.
+- Introduce secure authentication and access controls if the application grows.
+- Improve accessibility and add more comprehensive testing.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+**Built by [Bhuvnesh](https://github.com/bhuvitw)**
+
+--- FILE: ./index.html ---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Space — Live Sync</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="nav">
+    <div class="nav-brand">📝 Shared Backlog Workspace</div>
+    <a href="notes.html" class="nav-link">📓 Personal Notes</a>
+    <div class="user-auth">
+      <!-- Active Users Counter -->
+      <div id="active-users-badge" class="active-users-badge" title="Active users in last 30s">
+        🟢 <span id="active-users-count">1</span> Active
+        <div id="active-users-tooltip" class="active-users-tooltip">Active: You</div>
+      </div>
+
+      <span id="user-status">User: Anonymous</span>
+      <input type="text" id="username-input" placeholder="Enter name..." />
+      <button id="auth-btn">Set Name</button>
+      <button id="sync-btn" title="Manual Sync">🔄 Syncing...</button>
+    </div>
+  </nav>
+
+  <div class="workspace">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-title">NAVIGATION</div>
+      <ul id="week-tabs" class="week-tabs">
+        <!-- Rendered by JS -->
+      </ul>
+
+      <!-- New Week Controls -->
+      <div class="add-week-box">
+        <input type="text" id="new-week-input" placeholder="e.g. Week 7" />
+        <button id="add-week-btn" class="add-btn">+ Add Week</button>
+      </div>
+    </aside>
+
+    <!-- Main Canvas -->
+    <main class="document">
+      <div class="doc-header">
+        <div class="doc-title-group">
+          <h1 id="current-week-title">Loading...</h1>
+          <button id="delete-week-btn" class="icon-btn delete-week-btn" title="Delete current week">🗑️ Delete Week</button>
+        </div>
+        <button id="add-topic-btn" class="add-btn">+ Add Main Topic</button>
+      </div>
+
+      <!-- Topics Container / Summary Container -->
+      <div id="topic-container" class="topic-container">
+        <!-- Rendered by JS -->
+      </div>
+    </main>
+  </div>
+
+  
+
+  <script type="module" src="./js/main.js"></script>
+  <script>
+    // Register Service Worker for Offline Assets
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registered!'))
+          .catch(err => console.log('Service Worker failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
+
+--- FILE: ./notes.html ---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Study Notes — Live Sync</title>
+  <!-- Link directly to the main stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="js/notes.js"></script>
+</head>
+<body>
+
+  <!-- Shared Top Navigation -->
+  <nav class="nav">
+    <div class="nav-brand">📝 Personal Notes</div>
+    <a href="index.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 500;">← Back to Shared Workspace</a>
+  </nav>
+
+  <!-- Reusing main workspace layout -->
+  <div class="workspace">
+    <main class="document" style="max-width: 800px; margin: 0 auto; padding-top: 32px;">
+      
+      <div class="doc-header">
+        <div class="doc-title-group">
+          <h1>Your Revision Notes</h1>
+        </div>
+      </div>
+
+      <!-- Note Creation Form -->
+      <form id="note-form" class="note-form">
+        <div class="input-group">
+          <label for="note-title">Note title</label>
+          <input id="note-title" type="text" maxlength="100" placeholder="e.g. JavaScript Promises" required>
+        </div>
+        
+        <div class="input-group">
+          <label for="note-content">Note content</label>
+          <textarea id="note-content" rows="5" placeholder="Write your revision notes..." required></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button id="save-btn" class="add-btn" type="submit">Add Note</button>
+          <button id="cancel-btn" class="icon-btn" type="button" hidden>Cancel Edit</button>
+        </div>
+      </form>
+
+      <!-- Rendered Notes Container -->
+      <section aria-labelledby="saved-heading" style="margin-top: 40px;">
+        <h2 id="saved-heading" class="summary-week-title">Saved Notes</h2>
+        <div id="notes-list" aria-live="polite"></div>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>
+
+--- FILE: ./combined.txt ---
+
+
+
+--- FILE: ./style.css ---
+
+:root {
+  --bg-main: #ffffff;
+  --bg-hover: #f7f6f3;
+  --bg-selected: #efeee9;
+  --text-main: #37352f;
+  --text-muted: #787774;
+  --border-light: #e9e9e8;
+  --accent-red: #eb5757;
+  --accent-red-bg: #fdebec;
+  --accent-blue: #2563eb;
+  --accent-blue-bg: #eff6ff;
+  --accent-green-bg: #dcfce7;
+  --accent-green-text: #15803d;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+/* Top Navigation */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.nav-brand {
+  font-weight: 600;
+}
+
+.user-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.active-users-badge {
+  position: relative;
+  font-size: 12px;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.active-users-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 125%;
+  right: 0;
+  background: #1e293b;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.active-users-badge:hover .active-users-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+#user-status {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.user-auth input {
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+}
+
+.user-auth button, .add-btn {
+  padding: 6px 12px;
+  background: var(--text-main);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#sync-btn {
+  background: #f1f5f9;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Layout Workspace */
+.workspace {
+  display: flex;
+  min-height: calc(100vh - 50px);
+}
+
+.sidebar {
+  width: 250px;
+  border-right: 1px solid var(--border-light);
+  padding: 20px 12px;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding-left: 8px;
+}
+
+.week-tabs {
+  list-style: none;
+}
+
+/* Tab Active Indicator Styling */
+.week-tab {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  gap: 8px;
+}
+
+.week-tab:hover {
+  background: var(--bg-hover);
+}
+
+.week-tab.active {
+  background: var(--bg-selected);
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.week-tab.summary-tab {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.tab-active-indicator {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent-green-text);
+  background: var(--accent-green-bg);
+  padding: 2px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sidebar Add Week Form */
+.add-week-box {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-week-box input {
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font-size: 13px;
+  width: 100%;
+}
+
+.add-week-box button {
+  width: 100%;
+  padding: 6px;
+  font-size: 12px;
+}
+
+/* Document Container */
+.document {
+  flex: 1;
+  padding: 40px 48px;
+  max-width: 900px;
+  width: 100%;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.doc-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.doc-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.delete-week-btn {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.delete-week-btn:hover {
+  background: var(--accent-red-bg);
+}
+
+.topic-card {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+  background: #fff;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.topic-input {
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  width: 70%;
+  outline: none;
+  background: transparent;
+}
+
+.topic-input:focus {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.icon-btn:hover {
+  color: var(--accent-red);
+}
+
+.subtopics-list {
+  padding-left: 12px;
+  margin-top: 8px;
+  border-left: 2px solid var(--border-light);
+}
+
+.subtopic-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.subtopic-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  resize: none;
+  overflow: hidden; /* Scrollbars hide karne ke liye */
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  line-height: 1.4;
+  box-sizing: border-box;
+  
+  /* Text wrapping fix taaki text hide na ho */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.subtopic-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.user-tag {
+  background: var(--accent-red-bg);
+  color: var(--accent-red);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.add-sub-btn {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 6px;
+  padding-left: 12px;
+}
+
+/* Summary View */
+.summary-week-section {
+  margin-bottom: 32px;
+}
+
+.summary-week-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  border-bottom: 2px solid var(--border-light);
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+}
+
+.summary-topic-card {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.summary-topic-header {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.summary-subtopics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-subtopic-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--bg-hover);
+  border-radius: 4px;
+}
+
+.summary-subtopic-text {
+  font-size: 13px;
+  font-weight: 500;
+  width: 60%;
+}
+
+.summary-subtopic-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.doubt-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  color: var(--text-muted);
+}
+
+.doubt-badge.has-doubts {
+  background: var(--accent-red-bg);
+  color: var(--accent-red);
+}
+
+.no-doubt-tag {
+  font-size: 11px;
+  color: #16a34a;
+}
+
+.student-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+  .nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .nav-brand {
+    font-size: 15px;
+  }
+
+  .user-auth {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .user-auth input, 
+  .user-auth button {
+    width: 100%;
+  }
+
+  .workspace {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+    padding: 12px 14px;
+  }
+
+  .week-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .week-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
+
+  .add-week-box {
+    flex-direction: row;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-light);
+  }
+  
+  .add-week-box input {
+    flex: 1;
+    max-width: none;
+  }
+  
+  .add-week-box button {
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .document {
+    padding: 16px 12px;
+    max-width: 100%;
+  }
+
+  .doc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .doc-title-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .doc-header h1 {
+    font-size: 20px;
+  }
+
+  #add-topic-btn {
+    width: 100%;
+  }
+
+  .topic-card {
+    padding: 10px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .topic-input {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .card-header .icon-btn {
+    align-self: flex-end;
+  }
+
+  .subtopic-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    background: var(--bg-hover);
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .subtopic-input {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .subtopic-actions {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dashed var(--border-light);
+    padding-top: 6px;
+    margin-top: 2px;
+  }
+
+  .summary-subtopic-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .summary-subtopic-text {
+    width: 100%;
+  }
+
+  .summary-subtopic-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-brand {
+    font-size: 14px;
+  }
+}
+
+/* --- PERSONAL NOTES MODULE --- */
+.notes-container {
+  width: min(800px, 100%);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.note-form {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  padding: 10px;
+  font: inherit;
+  border: 1px solid var(--border-light);
+  border-radius: 5px;
+  outline: none;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  border-color: var(--text-main);
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.note-card {
+  margin-bottom: 16px;
+  padding: 20px;
+  background: white;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.note-card h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.note-content {
+  white-space: pre-wrap;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.note-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-light);
+}
+
+.note-actions button {
+  padding: 6px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.note-actions button:hover {
+  background: var(--bg-hover);
+  color: var(--text-main);
+}
+
+.note-actions .delete-btn:hover {
+  background: var(--accent-red-bg);
+  color: var(--accent-red);
+  border-color: var(--accent-red-bg);
+}
+
+/* Navigation Links */
+.nav-link {
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: var(--accent-blue-bg);
+  transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #dbeafe; /* Slightly darker blue on hover */
+}
+
+/* Google Docs Style Avatar CSS */
+.avatar-group {
+  display: flex;
+  align-items: center;
+  padding-left: 10px; /* Space for negative margin */
+}
+
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+  border: 2px solid var(--bg-main);
+  margin-left: -10px; /* Overlap effect like the image */
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.avatar-circle:hover {
+  z-index: 10;
+  transform: translateY(-2px);
+}
+
+.avatar-count {
+  background: #e2e8f0;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Make Main Canvas look like an A4 Page */
+.document {
+  flex: 1;
+  padding: 60px 80px; /* Increased padding */
+  max-width: 900px;
+  width: 100%;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05); /* Subtle page shadow */
+  min-height: 100vh;
+}
+
+/* Remove heavy borders from Topic Cards to look like Docs headings */
+.topic-card {
+  border: none; /* Removed border */
+  border-bottom: 1px solid var(--border-light); /* Just a subtle separator */
+  border-radius: 0;
+  padding: 16px 0; /* Adjusted padding */
+  margin-bottom: 24px;
+  background: transparent;
+}
+
+/* Make Topic Title look like an H2 inside a Document */
+.topic-input {
+  font-size: 20px; /* Larger font */
+  font-weight: 700;
+  color: var(--text-main);
+  border: none;
+  width: 80%;
+  outline: none;
+  background: transparent;
+  padding: 4px 0;
+}
+
+/* Make subtopics look like bullet points / paragraphs */
+.subtopics-list {
+  padding-left: 20px; /* Indent like a list */
+  margin-top: 12px;
+  border-left: none; /* Removed the heavy left line */
+  list-style-type: disc; /* Optional: adds a natural list feel */
+}
+
+.subtopic-input {
+  font-size: 15px;
+  line-height: 1.6;
+  border: 1px solid transparent; /* Hidden border until hover/focus */
+  padding: 4px 8px;
+  color: #37352f;
+}
+
+.subtopic-input:hover, .subtopic-input:focus {
+  background: var(--bg-hover);
+  border-color: var(--border-light);
+}
+
+--- FILE: ./LICENSE ---
+
+## MIT License
+
+Copyright (c) 2026 Bhuvnesh
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+--- FILE: ./js/utils/analyticsWorker.js ---
+
+self.onmessage = function(event) {
+    const state = event.data;
+    
+    let totalTopics = 0;
+    let totalSubtopics = 0;
+    let totalDoubts = 0;
+    let maxDoubts = 0;
+    let hotTopic = "None";
+
+    // Filter out metadata like _activeUsers
+    const weeks = Object.keys(state).filter(k => k !== '_activeUsers');
+
+    weeks.forEach(week => {
+        state[week].forEach(topic => {
+            totalTopics++;
+            let currentTopicDoubts = 0;
+
+            topic.subtopics.forEach(sub => {
+                totalSubtopics++;
+                if (sub.doubts && sub.doubts.length > 0) {
+                    const doubtCount = sub.doubts.length;
+                    totalDoubts += doubtCount;
+                    currentTopicDoubts += doubtCount;
+                }
+            });
+
+            // Check if this topic has the highest doubts
+            if (currentTopicDoubts > maxDoubts) {
+                maxDoubts = currentTopicDoubts;
+                hotTopic = topic.title;
+            }
+        });
+    });
+
+    // Send the processed analytics back to the main thread
+    self.postMessage({
+        totalTopics,
+        totalSubtopics,
+        totalDoubts,
+        hotTopic
+    });
+};
+
+--- FILE: ./js/utils/constant.js ---
+
+const SUMMARY_TAB_KEY = "📌 Complete Syllabus Summary";
+
+export { SUMMARY_TAB_KEY };
+
+--- FILE: ./js/main.js ---
+
+import { addTopic } from "./domain/topics.js";
+import { broadcastPresence, fetchActiveUsers } from "./services/presenceDataService.js";
+import { fetchCloudData as fetchCloudRecord, queueSaveData } from "./services/sharedDataService.js";
+import { getCurrentUser, getState, setCurrentUser, setCurrentWeek, setState, getCurrentWeek } from "./state/appState.js";
+import { render } from "./ui/render.js";
+import { SUMMARY_TAB_KEY } from "./utils/constant.js";
+
+const getEl = id => document.getElementById(id);
+const ui = {
+  userInp: getEl('username-input'),
+  authBtn: getEl('auth-btn'),
+  syncBtn: getEl('sync-btn'),
+  addTopicBtn: getEl('add-topic-btn'),
+  newWeekInp: getEl('new-week-input'),
+  addWeekBtn: getEl('add-week-btn'),
+  delWeekBtn: getEl('delete-week-btn')
+};
+
+const DEFAULT_STATE = { "Week 1": [{ id: Date.now(), title: "Sample Topic", subtopics: [{ id: Date.now() + 1, text: "Sample Subtopic", doubts: [] }] }] };
+
+async function fetchCloudData() {
+  ui.syncBtn.textContent = "⏳ Syncing...";
+  try {
+    const record = await fetchCloudRecord();
+    setState(record && Object.keys(record).length ? record : DEFAULT_STATE);
+  } catch (err) {
+    if (!getState()["Week 1"]) setState(DEFAULT_STATE);
+  } finally {
+    ui.syncBtn.textContent = "🟢 Live";
+    render();
+  }
+}
+
+ui.authBtn.onclick = () => {
+  const name = ui.userInp.value.trim();
+  if (!name) return;
+  setCurrentUser(name);
+  localStorage.setItem('study_user', name);
+  ui.userInp.value = '';
+  queueSaveData();
+  render();
+};
+
+ui.syncBtn.onclick = () => {
+  queueSaveData();
+  fetchCloudData();
+};
+
+ui.addWeekBtn.onclick = () => {
+  const weekName = ui.newWeekInp.value.trim();
+  if (!weekName || getState()[weekName]) return alert("Invalid or duplicate week!");
+  
+  getState()[weekName] = [{ id: Date.now(), title: "New Main Topic", subtopics: [{ id: Date.now() + 1, text: "New Subtopic", doubts: [] }] }];
+  setCurrentWeek(weekName);
+  ui.newWeekInp.value = '';
+  queueSaveData();
+  render();
+};
+
+ui.delWeekBtn.onclick = () => {
+  if (getCurrentWeek() === SUMMARY_TAB_KEY) return;
+  const keys = Object.keys(getState()).filter(k => k !== '_activeUsers');
+  if (keys.length <= 1) return alert("Cannot delete the last week!");
+
+  if (confirm(`Delete ${getCurrentWeek()}?`)) {
+    delete getState()[getCurrentWeek()];
+    setCurrentWeek(Object.keys(getState()).filter(k => k !== '_activeUsers')[0] || "Week 1");
+    queueSaveData();
+    render();
+  }
+};
+
+ui.addTopicBtn.onclick = () => {
+  addTopic();
+  queueSaveData();
+  render();
+};
+
+setInterval(fetchCloudData, 300000);
+setInterval(broadcastPresence, 30000);
+setInterval(fetchActiveUsers, 15000);
+
+fetchCloudData();
+broadcastPresence();
+
+--- FILE: ./js/ui/weekView.js ---
+
+import { getActiveUsers } from "../domain/presence.js";
+import { getState,getCurrentWeek } from "../state/appState.js";
+import { SUMMARY_TAB_KEY } from "../utils/constant.js";
+
+function renderWeeks(weekTabs) {
+  weekTabs.innerHTML = '';
+  const activeUsers = getActiveUsers();
+
+  Object.keys(getState())
+    .filter(key => key !== '_activeUsers')
+    .forEach(week => {
+      const usersInThisWeek = activeUsers.filter(u => u.week === week);
+      const userNamesInThisWeek = usersInThisWeek.map(u => u.name);
+
+      const li = document.createElement('li');
+      li.className = `week-tab ${week === getCurrentWeek() ? 'active' : ''}`;
+      li.dataset.week = week;
+
+      const titleSpan = document.createElement('span');
+      titleSpan.textContent = week;
+      li.appendChild(titleSpan);
+
+      if (usersInThisWeek.length > 0) {
+        const activeBadge = document.createElement('span');
+        activeBadge.className = 'tab-active-indicator';
+        
+        if (usersInThisWeek.length === 1) {
+          activeBadge.textContent = `🟢 ${userNamesInThisWeek[0]}`;
+        } else {
+          activeBadge.textContent = `🟢 ${usersInThisWeek.length} online (${userNamesInThisWeek.join(', ')})`;
+        }
+        
+        li.appendChild(activeBadge);
+      }
+
+      weekTabs.appendChild(li);
+    });
+
+  // Summary Tab
+  const summaryUsers = activeUsers.filter(u => u.week === SUMMARY_TAB_KEY);
+  const summaryLi = document.createElement('li');
+  summaryLi.className = `week-tab summary-tab ${getCurrentWeek() === SUMMARY_TAB_KEY ? 'active' : ''}`;
+  summaryLi.dataset.week = SUMMARY_TAB_KEY;
+
+  const summarySpan = document.createElement('span');
+  summarySpan.textContent = SUMMARY_TAB_KEY;
+  summaryLi.appendChild(summarySpan);
+
+  if (summaryUsers.length > 0) {
+    const activeBadge = document.createElement('span');
+    activeBadge.className = 'tab-active-indicator';
+    activeBadge.textContent = `🟢 ${summaryUsers.map(u => u.name).join(', ')}`;
+    summaryLi.appendChild(activeBadge);
+  }
+  
+  weekTabs.appendChild(summaryLi);
+};
+
+export {renderWeeks};
+
+--- FILE: ./js/ui/summaryView.js ---
+
+import { getState } from "../state/appState.js";
+
+function renderSyllabusSummaryDashboard(topicContainer) {
+  const container = document.createElement('div');
+
+  // --- 1. WEB WORKER INTEGRATION (Analytics Dashboard) ---
+  const analyticsDiv = document.createElement('div');
+  analyticsDiv.innerHTML = `<p style="font-weight: 500; color: var(--text-muted);">⏳ Crunching syllabus analytics in background...</p>`;
+  analyticsDiv.style.cssText = "margin-bottom: 24px; padding: 16px; background: var(--accent-blue-bg); border: 1px solid var(--accent-blue); border-radius: 8px;";
+  container.appendChild(analyticsDiv);
+
+  if (window.Worker) {
+    // Initialize Web Worker
+    const worker = new Worker('./js/utils/analyticsWorker.js');
+    
+    // Pass the entire application state to the background worker
+    worker.postMessage(getState()); 
+
+    // Listen for the result
+    worker.onmessage = function(e) {
+      const { totalTopics, totalSubtopics, totalDoubts, hotTopic } = e.data;
+      
+      analyticsDiv.innerHTML = `
+        <h3 style="margin-bottom: 12px; color: var(--accent-blue); font-size: 16px;">📊 Live Syllabus Analytics</h3>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px;">
+          <div><strong>Total Topics:</strong> ${totalTopics}</div>
+          <div><strong>Total Subtopics:</strong> ${totalSubtopics}</div>
+          <div><strong>Total Doubts:</strong> <span style="color: var(--accent-red); font-weight: bold;">${totalDoubts}</span></div>
+          <div><strong>🔥 Hot Topic:</strong> ${hotTopic}</div>
+        </div>
+      `;
+      worker.terminate(); // Clean up worker after use
+    };
+  }
+  // --- END WORKER INTEGRATION ---
+
+  // --- 2. EXISTING SUMMARY RENDER LOGIC ---
+  (Object.keys(getState()))
+    .filter(k => k !== '_activeUsers')
+    .forEach(week => {
+      const weekSection = document.createElement('div');
+      weekSection.className = 'summary-week-section';
+      weekSection.innerHTML = `<h2 class="summary-week-title">${week}</h2>`;
+
+      getState()[week].forEach(topic => {
+        const topicCard = document.createElement('div');
+        topicCard.className = 'summary-topic-card';
+        
+        let subtopicsHtml = '';
+
+        topic.subtopics.forEach(sub => {
+          const doubtCount = sub.doubts ? sub.doubts.length : 0;
+          const studentNames = doubtCount > 0 
+            ? sub.doubts.map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ') 
+            : `<span class="no-doubt-tag">✅ Clear</span>`;
+
+          subtopicsHtml += `
+            <div class="summary-subtopic-row">
+              <div class="summary-subtopic-text">${sub.text}</div>
+              <div class="summary-subtopic-meta">
+                <span class="doubt-badge ${doubtCount > 0 ? 'has-doubts' : ''}">${doubtCount} Doubts</span>
+                <div class="student-list">${studentNames}</div>
+              </div>
+            </div>
+          `;
+        });
+
+        topicCard.innerHTML = `
+          <div class="summary-topic-header">${topic.title}</div>
+          <div class="summary-subtopics-list">${subtopicsHtml}</div>
+        `;
+
+        weekSection.appendChild(topicCard);
+      });
+
+      container.appendChild(weekSection);
+    });
+
+  topicContainer.appendChild(container);
+}
+
+export {renderSyllabusSummaryDashboard}
+
+--- FILE: ./js/ui/render.js ---
+
+import { getCurrentUser } from "../state/appState.js";
+import { renderTopics } from "./topicsView.js";
+import { renderWeeks } from "./weekView.js";
+import { setupEvents } from "../events/events.js";
+import { renderActiveUsersHeader } from "./activeUserView.js";
+
+const weekTabs = document.getElementById("week-tabs");
+const currentWeekTitle = document.getElementById("current-week-title");
+const topicContainer = document.getElementById("topic-container");
+const addTopicBtn = document.getElementById("add-topic-btn");
+const deleteWeekBtn = document.getElementById("delete-week-btn");
+const userStatus = document.getElementById('user-status');
+const activeUsersCount = document.getElementById('active-users-count');
+const activeUsersTooltip = document.getElementById('active-users-tooltip');
+
+function render() {
+  userStatus.textContent = `User: ${getCurrentUser()}`;
+  renderActiveUsersHeader(activeUsersCount, activeUsersTooltip);
+  renderWeeks(weekTabs);
+  renderTopics(currentWeekTitle, topicContainer, addTopicBtn, deleteWeekBtn);
+  setupEvents();
+}
+
+export {render}
+
+--- FILE: ./js/ui/topicsView.js ---
+
+import { getState, getCurrentUser,getCurrentWeek } from "../state/appState.js";
+import { SUMMARY_TAB_KEY } from "../utils/constant.js";
+import { renderSyllabusSummaryDashboard } from "./summaryView.js";
+
+function renderTopics(
+  currentWeekTitle,
+  topicContainer,
+  addTopicBtn,
+  deleteWeekBtn
+) {
+  currentWeekTitle.textContent = getCurrentWeek();
+  topicContainer.innerHTML = '';
+
+  if (getCurrentWeek() === SUMMARY_TAB_KEY) {
+    addTopicBtn.style.display = "none";
+    deleteWeekBtn.style.display = "none";
+    renderSyllabusSummaryDashboard(topicContainer);
+    return;
+  }
+
+  addTopicBtn.style.display = "block";
+  deleteWeekBtn.style.display = "inline-block";
+
+  if (!getState()[getCurrentWeek()]) return;
+
+  getState()[getCurrentWeek()].forEach((topic, tIndex) => {
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+
+    // Check ownership (fallback to true for older data without a createdBy field)
+    const isTopicOwner = topic.createdBy === getCurrentUser() || !topic.createdBy;
+
+    const subtopicsHtml = topic.subtopics.map((sub, sIndex) => {
+      const hasDoubt = sub.doubts ? sub.doubts.includes(getCurrentUser()) : false;
+      const doubtTags = (sub.doubts || []).map(u => `<span class="user-tag">🙋 ${u}</span>`).join(' ');
+      const isSubOwner = sub.createdBy === getCurrentUser() || !sub.createdBy;
+
+      return `
+        <div class="subtopic-item">
+          <textarea 
+            class="subtopic-input" 
+            rows="1"
+            data-topic-index="${tIndex}" 
+            data-subtopic-index="${sIndex}"
+            ${isSubOwner ? '' : 'readonly'} 
+          >${sub.text}</textarea>
+          <div class="subtopic-actions">
+            ${doubtTags}
+            <button class="icon-btn toggle-doubt-btn" data-topic-index="${tIndex}" data-subtopic-index="${sIndex}">${hasDoubt ? '❌ Clear' : '🙋 Doubt'}</button>
+            <button class="icon-btn delete-subtopic-btn" style="display: ${isSubOwner ? 'inline-block' : 'none'};" data-topic-index="${tIndex}" data-subtopic-index="${sIndex}">🗑️ Delete</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="card-header">
+        <input 
+          class="topic-input" 
+          value="${topic.title}" 
+          data-topic-index="${tIndex}"
+          ${isTopicOwner ? '' : 'readonly'}
+        />
+        <button class="icon-btn delete-topic-btn" style="display: ${isTopicOwner ? 'inline-block' : 'none'};" data-topic-index="${tIndex}">Delete Topic</button>
+      </div>
+      <div class="subtopics-list">${subtopicsHtml}</div>
+      <button class="add-sub-btn" data-topic-index="${tIndex}" style="display: ${isTopicOwner ? 'inline-block' : 'none'};">+ Add subtopic</button>
+    `;
+
+    topicContainer.appendChild(card);
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll('.subtopic-input').forEach(el => {
+      el.style.height = 'auto';
+      el.style.height = (el.scrollHeight + 8) + 'px';
+    });
+  }, 50);
+}
+
+export {renderTopics}
+
+--- FILE: ./js/ui/activeUserView.js ---
+
+import { getActiveUsers } from "../domain/presence.js";
+import { getCurrentUser } from "../state/appState.js";
+
+function renderActiveUsersHeader(activeUsersCount, activeUsersTooltip) {
+  const activeList = getActiveUsers();
+  
+  const count = activeList.length > 0 ? activeList.length : 1;
+  const names = activeList.length > 0 ? activeList.map(u => u.name).join(', ') : getCurrentUser();
+
+  activeUsersCount.textContent = count;
+  activeUsersTooltip.textContent = `Active: ${names}`;
+}
+
+export {renderActiveUsersHeader}
+
+--- FILE: ./js/services/sharedDataService.js ---
+
+import { getState } from "../state/appState.js";
+
+// CONFIGURATION: JsonBin credentials
+const JSONBIN_BIN_ID = "6ac82a38ac6210605a210c06";
+const JSONBIN_API_KEY = "\$2a\$10\$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
+const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
+let saveDebounceTimer = null;
+let isCloudDataLoaded = false;
+
+// --- 1. INDEXED DB HELPER FUNCTIONS (Promises) ---
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('SyllabusDB', 1);
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('syllabus')) {
+                db.createObjectStore('syllabus');
+            }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function saveLocalFallback(data) {
+    try {
+        const db = await initDB();
+        const tx = db.transaction('syllabus', 'readwrite');
+        tx.objectStore('syllabus').put(data, 'shared_state');
+    } catch (err) {
+        console.warn("IndexedDB Save Error:", err);
+    }
+}
+
+function getLocalFallback() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const db = await initDB();
+            const tx = db.transaction('syllabus', 'readonly');
+            const request = tx.objectStore('syllabus').get('shared_state');
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+// --- END INDEXED DB ---
+async function fetchCloudData() {
+    try {
+        // 1. Check if we have offline changes waiting to be synced
+        if (localStorage.getItem('pending_sync') === 'true') {
+            console.log("Unsynced offline changes detected. Loading local data...");
+            const localData = await getLocalFallback();
+            if (localData) {
+                isCloudDataLoaded = true;
+                // Attempt to push these offline changes to the cloud now
+                queueSaveData(); 
+                return localData;
+            }
+        }
+
+        // 2. Normal cloud fetch if no pending local changes
+        const response = await fetch(`${API_URL}/latest`, {
+            headers: { "X-Master-Key": JSONBIN_API_KEY }
+        });
+
+        if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
+
+        const data = await response.json(); 
+        isCloudDataLoaded = true; 
+        
+        // Cache the fresh cloud data to IndexedDB
+        await saveLocalFallback(data.record);
+        return data.record;
+
+    } catch (error) {
+        console.warn("Cloud fetch failed, attempting to load from IndexedDB...", error);
+        
+        const localData = await getLocalFallback();
+        if (localData) {
+            isCloudDataLoaded = true;
+            return localData;
+        }
+        throw error;
+    }
+}
+
+async function queueSaveData() {
+    if (!isCloudDataLoaded) return;
+    
+    // Save to IndexedDB immediately and set the pending flag
+    await saveLocalFallback(getState());
+    localStorage.setItem('pending_sync', 'true');
+
+    clearTimeout(saveDebounceTimer);
+
+    saveDebounceTimer = setTimeout(async () => {
+        try { 
+            if (!navigator.onLine) {
+                console.log("You are offline. Data saved locally to IndexedDB.");
+                return;
+            }
+
+            const response = await fetch(API_URL, {
+                method: "PUT", 
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": JSONBIN_API_KEY
+                },
+                body: JSON.stringify(getState())
+            });
+
+            if (!response.ok) throw new Error(`Save failed: ${response.status}`);
+            
+            // Sync successful: remove the pending flag
+            localStorage.removeItem('pending_sync');
+            console.log("Data synced to cloud successfully");
+            
+        } catch (error) {
+            console.error("Cloud save failed, but data is safe in IndexedDB.", error); 
+        }
+    }, 500); 
+}
+
+// js/services/sharedDataService.js ke andar add karo
+
+async function saveLocalOnly() {
+    if (!isCloudDataLoaded) return;
+    
+    // Sirf IndexedDB mein save karo
+    await saveLocalFallback(getState());
+    
+    // Flag set karo ki offline changes waiting hain
+    localStorage.setItem('pending_sync', 'true');
+    
+    // UI mein user ko batao ki doubt locally save ho gaya hai
+    const syncBtn = document.getElementById('sync-btn');
+    if (syncBtn) {
+        syncBtn.textContent = "🟡 Pending (Click to Sync)";
+    }
+    console.log("Minor change (Doubt) saved to IndexedDB only.");
+}
+
+// Ensure you export it at the bottom:
+export { fetchCloudData, queueSaveData, saveLocalOnly };
+
+
+
+--- FILE: ./js/services/presenceDataService.js ---
+
+import { getCurrentUser, getCurrentWeek } from "../state/appState.js";
+
+const API_URL = `https://api.jsonbin.io/v3/b/6acb32adffd5d1605360be05`;
+const API_KEY = "\$2a\$10\$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
+const reqOpts = { headers: { "X-Master-Key": API_KEY } };
+
+const userAvatarMap = new Map();
+const PROFILES = [
+  { emoji: '🐸', bg: '#d81b60' }, { emoji: '🐔', bg: '#e53935' }, { emoji: '🐮', bg: '#e06666' },
+  { emoji: '🦖', bg: '#dcb888' }, { emoji: '🦘', bg: '#00796b' }, { emoji: '🐨', bg: '#8e24aa' }
+];
+
+export async function fetchActiveUsers() {
+    try {
+        const res = await fetch(`${API_URL}/latest`, reqOpts);
+        if (res.ok) updatePresenceUI((await res.json()).record._activeUsers || {});
+    } catch (err) {}
+}
+
+export async function broadcastPresence() {
+    try {
+        const res = await fetch(`${API_URL}/latest`, reqOpts);
+        const list = (await res.json()).record._activeUsers || {};
+        list[getCurrentUser()] = { lastSeen: Date.now(), week: getCurrentWeek() };
+
+        await fetch(API_URL, { method: "PUT", ...reqOpts, body: JSON.stringify({ _activeUsers: list }) });
+        updatePresenceUI(list);
+    } catch (err) {}
+}
+
+function updatePresenceUI(list) {
+    const badge = document.getElementById('active-users-badge');
+    if (!badge) return;
+
+    const now = Date.now();
+    const activeSet = new Set(Object.entries(list).filter(([_, d]) => now - d.lastSeen < 60000).map(([n]) => n));
+
+    let html = `<div class="avatar-group" title="Active: ${[...activeSet].join(', ')}">`;
+    let count = 0;
+
+    activeSet.forEach(user => {
+        if (!userAvatarMap.has(user)) userAvatarMap.set(user, PROFILES[userAvatarMap.size % PROFILES.length]);
+        if (count++ < 5) {
+            const { emoji, bg } = userAvatarMap.get(user);
+            const char = ['bhuvnesh', 'admin'].includes(user.toLowerCase()) ? user[0].toUpperCase() : emoji;
+            html += `<div class="avatar-circle" style="background-color: ${bg}">${char}</div>`;
+        }
+    });
+
+    if (activeSet.size > 5) html += `<div class="avatar-circle avatar-count">+${activeSet.size - 5}</div>`;
+    badge.style.background = 'transparent';
+    badge.innerHTML = html + `</div>`;
+}
+
+--- FILE: ./js/events/events.js ---
+
+import { updateTopicTitle, deleteTopic } from "../domain/topics.js";
+import { addSubtopic, deleteSubTopic, updateSubTopic } from "../domain/subTopics.js";
+import { toggleDoubt } from "../domain/doubt.js";
+import { queueSaveData, saveLocalOnly } from "../services/sharedDataService.js";
+import { getCurrentWeek, getState, setCurrentWeek } from "../state/appState.js";
+import { render } from "../ui/render.js";
+
+export function setupEvents() {
+    document.querySelectorAll(".topic-input").forEach(el => el.addEventListener("change", e => {
+        updateTopicTitle(Number(e.target.dataset.topicIndex), e.target.value);
+        queueSaveData();
+    }));
+
+    document.querySelectorAll(".week-tab").forEach(el => el.addEventListener("click", e => {
+        setCurrentWeek(e.currentTarget.dataset.week);
+        render();
+    }));
+
+    document.querySelectorAll(".subtopic-input").forEach(el => el.addEventListener("change", e => {
+        updateSubTopic(Number(e.target.dataset.topicIndex), Number(e.target.dataset.subtopicIndex), e.target.value);
+        queueSaveData();
+    }));
+
+    document.querySelectorAll(".toggle-doubt-btn").forEach(el => el.addEventListener("click", e => {
+        toggleDoubt(Number(e.currentTarget.dataset.topicIndex), Number(e.currentTarget.dataset.subtopicIndex));
+        render();
+        saveLocalOnly();
+    }));
+
+    document.querySelectorAll(".delete-subtopic-btn").forEach(el => el.addEventListener("click", e => {
+        if (confirm("Delete this subtopic?")) {
+            deleteSubTopic(Number(e.currentTarget.dataset.topicIndex), Number(e.currentTarget.dataset.subtopicIndex));
+            render();
+            queueSaveData();
+        }
+    })); 
+
+    document.querySelectorAll(".add-sub-btn").forEach(el => el.addEventListener("click", e => {
+        addSubtopic(Number(e.currentTarget.dataset.topicIndex));
+        render();
+        queueSaveData();
+    }));
+
+    document.querySelectorAll(".delete-topic-btn").forEach(el => el.addEventListener("click", e => {
+        if(confirm("Delete this entire topic?")) {
+            deleteTopic(Number(e.currentTarget.dataset.topicIndex)); 
+            render();
+            queueSaveData();
+        }
+    }));
+}
+
+--- FILE: ./js/domain/topics.js ---
+
+import { getCurrentUser, getCurrentWeek, getState } from "../state/appState.js";
+
+function updateTopicTitle(tIndex, newTitle) {
+    getState()[getCurrentWeek()][tIndex].title = newTitle; 
+}
+
+function deleteTopic(tIndex) {
+    getState()[getCurrentWeek()].splice(tIndex, 1);
+}
+
+function addTopic() {
+    const week = getCurrentWeek(); 
+    const state = getState(); 
+    const currentUser = getCurrentUser(); 
+
+    if(!state[week]) {
+        state[week] = [];
+    }
+
+    state[week].push({
+        id: Date.now(),
+        title: "New Main Topic",
+        createdBy: currentUser,
+        subtopics: [
+            {
+                id: Date.now() + 1,
+                text: "New Subtopic",
+                createdBy: currentUser,
+                doubts: [] 
+            }
+        ]
+    })
+}
+
+export {updateTopicTitle, deleteTopic, addTopic};
+
+--- FILE: ./js/domain/subTopics.js ---
+
+import { getCurrentUser, getCurrentWeek, getState } from "../state/appState.js";
+
+function addSubtopic(tIndex) {
+    const state = getState(); 
+    const currentWeek = getCurrentWeek(); 
+    const currentUser = getCurrentUser();
+    
+    state[currentWeek][tIndex].subtopics.push({
+        id: Date.now(),
+        text: "New Subtopic",
+        createdBy: currentUser,
+        doubts: []
+    })
+}
+
+function updateSubTopic(tIndex, sIndex, val) {
+  getState()[getCurrentWeek()][tIndex].subtopics[sIndex].text = val; 
+}
+
+function deleteSubTopic(tIndex, sIndex) {
+    getState()[getCurrentWeek()][tIndex].subtopics.splice(sIndex, 1);
+}
+
+export {addSubtopic, updateSubTopic, deleteSubTopic}
+
+--- FILE: ./js/domain/presence.js ---
+
+import { getCurrentUser } from "../state/appState.js";
+import { getCurrentWeek } from "../state/appState.js";
+import { setState } from "../state/appState.js";
+import { getState } from "../state/appState.js";
+
+function getActiveUsers() {
+    if(!getState()._activeUsers) return []; 
+
+    const now = Date.now(); 
+
+    return Object.entries(getState()._activeUsers)
+        .filter(([_,data ]) => {
+            const lastSeen = typeof data === "number"
+                ? data
+                : data.lastSeen
+
+            return now - lastSeen < 30000;
+        })
+        .map(([name, data]) =>({
+            name, 
+            week: typeof data === "object" && data.week
+                ? data.week
+                : "Week 1"
+        }));
+};
+
+function updateActivePresence() {
+    const  state = getState();
+
+    if (!state._activeUsers) state._activeUsers = {};
+
+    state._activeUsers[getCurrentUser()] = {
+        lastSeen: Date.now(),
+        week: getCurrentWeek()
+    };
+
+    setState(state)
+}
+
+export { getActiveUsers,updateActivePresence };
+
+--- FILE: ./js/domain/doubt.js ---
+
+import { getCurrentUser, getCurrentWeek, getState } from "../state/appState.js";
+
+function toggleDoubt(tIndex, sIndex) {
+  if (!getState()[getCurrentWeek()][tIndex].subtopics[sIndex].doubts) {
+    getState()[getCurrentWeek()][tIndex].subtopics[sIndex].doubts = [];
+  }
+  const doubts = getState()[getCurrentWeek()][tIndex].subtopics[sIndex].doubts;
+  const idx = doubts.indexOf(getCurrentUser());
+  if (idx === -1) doubts.push(getCurrentUser());
+  else doubts.splice(idx, 1);
+}
+
+export {toggleDoubt};
+
+--- FILE: ./js/state/appState.js ---
+
+// Global App State
+
+let currentUser = localStorage.getItem('study_user') || "anonymous";
+let currentWeek = "Week 1";
+
+let state = {
+  currentWeek: "Week 1",
+  weeks: []
+};
+
+function getState(){
+  return state
+}
+
+function setState(data){
+  state = data; 
+}
+
+function getCurrentUser(){
+  return currentUser;
+}
+
+function setCurrentUser(data){
+  currentUser = data; 
+}
+
+function getCurrentWeek(){
+  return currentWeek;
+}
+
+function setCurrentWeek(data){
+  currentWeek = data; 
+}
+
+export {getState, setState, getCurrentUser, setCurrentUser, getCurrentWeek, setCurrentWeek};
+
+
+--- FILE: ./js/notes.js ---
+
+
+const STORAGE_KEY = "uca_personal_notes";
+
+const form = document.getElementById("note-form");
+const titleInput = document.getElementById("note-title");
+const contentInput = document.getElementById("note-content");
+const notesList = document.getElementById("notes-list");
+const saveBtn = document.getElementById("save-btn");
+const cancelBtn = document.getElementById("cancel-btn");
+
+let notes = loadNotes();
+let editingId = null;
+
+function loadNotes() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveNotes() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    return true;
+  } catch {
+    alert("Could not save notes. Browser storage may be unavailable.");
+    return false;
+  }
+}
+
+function renderNotes() {
+  notesList.replaceChildren();
+
+  if (notes.length === 0) {
+    const empty = document.createElement("p");
+    empty.textContent = "No notes yet. Create your first revision note!";
+    notesList.appendChild(empty);
+    return;
+  }
+
+  notes.forEach(note => {
+    const card = document.createElement("article");
+    card.className = "note-card";
+
+    const title = document.createElement("h3");
+    title.textContent = note.title;
+
+    const content = document.createElement("p");
+    content.className = "note-content";
+    content.textContent = note.content;
+
+    const actions = document.createElement("div");
+    actions.className = "note-actions";
+
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.textContent = "Edit";
+    editBtn.addEventListener("click", () => startEditing(note.id));
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", () => deleteNote(note.id));
+
+    actions.append(editBtn, deleteBtn);
+    card.append(title, content, actions);
+    notesList.appendChild(card);
+  });
+}
+
+function resetForm() {
+  form.reset();
+  editingId = null;
+  saveBtn.textContent = "Add Note";
+  cancelBtn.hidden = true;
+}
+
+function startEditing(id) {
+  const note = notes.find(item => item.id === id);
+  if (!note) return;
+
+  editingId = id;
+  titleInput.value = note.title;
+  contentInput.value = note.content;
+  saveBtn.textContent = "Update Note";
+  cancelBtn.hidden = false;
+  titleInput.focus();
+}
+
+function deleteNote(id) {
+  if (!confirm("Delete this note?")) return;
+
+  const previousNotes = notes;
+  notes = notes.filter(note => note.id !== id);
+
+  if (!saveNotes()) {
+    notes = previousNotes;
+    return;
+  }
+
+  if (editingId === id) resetForm();
+  renderNotes();
+}
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const title = titleInput.value.trim();
+  const content = contentInput.value.trim();
+
+  if (!title || !content) return;
+
+  const previousNotes = notes;
+
+  if (editingId !== null) {
+    notes = notes.map(note =>
+      note.id === editingId ? { ...note, title, content } : note
+    );
+  } else {
+    notes = [
+      ...notes,
+      { id: crypto.randomUUID(), title, content }
+    ];
+  }
+
+  if (!saveNotes()) {
+    notes = previousNotes;
+    return;
+  }
+
+  resetForm();
+  renderNotes();
+});
+
+cancelBtn.addEventListener("click", resetForm);
+
+renderNotes();

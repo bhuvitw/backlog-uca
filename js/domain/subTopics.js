@@ -3,7 +3,7 @@ import { getCurrentUser, getCurrentWeek, getState } from "../state/appState.js";
 function addSubtopic(tIndex) {
     const state = getState(); 
     const currentWeek = getCurrentWeek(); 
-    const currentUser = getCurrentUser
+    const currentUser = getCurrentUser();
     
     state[currentWeek][tIndex].subtopics.push({
         id: Date.now(),

@@ -124,4 +124,25 @@ async function queueSaveData() {
     }, 500); 
 }
 
-export { fetchCloudData, queueSaveData };
+// js/services/sharedDataService.js ke andar add karo
+
+async function saveLocalOnly() {
+    if (!isCloudDataLoaded) return;
+    
+    // Sirf IndexedDB mein save karo
+    await saveLocalFallback(getState());
+    
+    // Flag set karo ki offline changes waiting hain
+    localStorage.setItem('pending_sync', 'true');
+    
+    // UI mein user ko batao ki doubt locally save ho gaya hai
+    const syncBtn = document.getElementById('sync-btn');
+    if (syncBtn) {
+        syncBtn.textContent = "🟡 Pending (Click to Sync)";
+    }
+    console.log("Minor change (Doubt) saved to IndexedDB only.");
+}
+
+// Ensure you export it at the bottom:
+export { fetchCloudData, queueSaveData, saveLocalOnly };
+

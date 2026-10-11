@@ -1,112 +1,51 @@
-import { updateActivePresence } from "../domain/presence.js";
 import { updateTopicTitle, deleteTopic } from "../domain/topics.js";
-
-import { 
-    addSubtopic, 
-    deleteSubTopic, 
-    updateSubTopic 
-} from "../domain/subTopics.js";
-
+import { addSubtopic, deleteSubTopic, updateSubTopic } from "../domain/subTopics.js";
 import { toggleDoubt } from "../domain/doubt.js";
-import { queueSaveData } from "../services/sharedDataService.js";
-
-import { 
-    getCurrentWeek, 
-    getState, 
-    setCurrentWeek 
-} from "../state/appState.js";
-
+import { queueSaveData, saveLocalOnly } from "../services/sharedDataService.js";
+import { getCurrentWeek, getState, setCurrentWeek } from "../state/appState.js";
 import { render } from "../ui/render.js";
 
-
-function setupEvents() {
-    document.querySelectorAll(".topic-input").forEach(input => {
-        input.addEventListener("input", (event) => {
-            const topicIndex = Number(event.currentTarget.dataset.topicIndex);
-            const newTitle = event.currentTarget.value;
-
-            updateTopicTitle(topicIndex, newTitle);
-            queueSaveData();
-        })
-    })
-
-    document.querySelectorAll(".week-tab").forEach(tab => {
-        tab.addEventListener("click", (event) => {
-            const week = event.currentTarget.dataset.week;
-
-            // later:
-            // setCurrentWeek(week)
-            setCurrentWeek(week);
-            updateActivePresence()
-            render();
-            queueSaveData();
-        });
-    });
-
-    document.querySelectorAll(".subtopic-input").forEach(input => {
-        input.addEventListener("input", (event) => {
-        const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-        const subTopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-        const newText = event.currentTarget.value;
-
-        updateSubTopic(topicIndex, subTopicIndex, newText);
+export function setupEvents() {
+    document.querySelectorAll(".topic-input").forEach(el => el.addEventListener("change", e => {
+        updateTopicTitle(Number(e.target.dataset.topicIndex), e.target.value);
         queueSaveData();
-        })
-    });
+    }));
 
-    document.querySelectorAll(".toggle-doubt-btn").forEach(button => {
-        button.addEventListener("click", (event) => {
-        const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-        const subtopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-
-        toggleDoubt(topicIndex, subtopicIndex); 
-        render()
-        //save
-        queueSaveData()
-        })
-    })
-
-    document.querySelectorAll(".delete-subtopic-btn").forEach(button => {
-        button.addEventListener("click", (event) => {
-        const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-        const subtopicIndex = Number(event.currentTarget.dataset.subtopicIndex); 
-        const subtopicText = getState()[getCurrentWeek()][topicIndex].subtopics[subtopicIndex].text || "this subtopic";
-
-        if (confirm(`Are you sure you want to delete "${subtopicText}"?`)) {
-            deleteSubTopic(topicIndex, subtopicIndex); 
-            render();
-            //save
-            queueSaveData();
-        }
-        
-        })
-    }); 
-
-    document.querySelectorAll(".add-sub-btn").forEach(button => {
-        button.addEventListener("click", (event) => {
-        const topicIndex = Number(event.currentTarget.dataset.topicIndex);
-
-        addSubtopic(topicIndex);
+    document.querySelectorAll(".week-tab").forEach(el => el.addEventListener("click", e => {
+        setCurrentWeek(e.currentTarget.dataset.week);
         render();
-        //save
+    }));
+
+    document.querySelectorAll(".subtopic-input").forEach(el => el.addEventListener("change", e => {
+        updateSubTopic(Number(e.target.dataset.topicIndex), Number(e.target.dataset.subtopicIndex), e.target.value);
         queueSaveData();
-        })
-    });
+    }));
 
-    document.querySelectorAll(".delete-topic-btn").forEach(button => {
-        button.addEventListener("click", (event) => {
-        const topicIndex = Number(event.currentTarget.dataset.topicIndex); 
-        
-        const topicName = getState()[getCurrentWeek()][topicIndex].title || "this topic";
+    document.querySelectorAll(".toggle-doubt-btn").forEach(el => el.addEventListener("click", e => {
+        toggleDoubt(Number(e.currentTarget.dataset.topicIndex), Number(e.currentTarget.dataset.subtopicIndex));
+        render();
+        saveLocalOnly();
+    }));
 
-        if(confirm(`Are you sure you want to delete "${topicName}" and all the subtopics?`)) {
-            deleteTopic(topicIndex); 
-            render()
-            // save
-            queueSaveData()
+    document.querySelectorAll(".delete-subtopic-btn").forEach(el => el.addEventListener("click", e => {
+        if (confirm("Delete this subtopic?")) {
+            deleteSubTopic(Number(e.currentTarget.dataset.topicIndex), Number(e.currentTarget.dataset.subtopicIndex));
+            render();
+            queueSaveData();
         }
-        })
-    });
-}
+    })); 
 
-export { setupEvents };
+    document.querySelectorAll(".add-sub-btn").forEach(el => el.addEventListener("click", e => {
+        addSubtopic(Number(e.currentTarget.dataset.topicIndex));
+        render();
+        queueSaveData();
+    }));
+
+    document.querySelectorAll(".delete-topic-btn").forEach(el => el.addEventListener("click", e => {
+        if(confirm("Delete this entire topic?")) {
+            deleteTopic(Number(e.currentTarget.dataset.topicIndex)); 
+            render();
+            queueSaveData();
+        }
+    }));
+}
