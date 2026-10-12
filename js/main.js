@@ -1,12 +1,11 @@
 import { addTopic } from "./domain/topics.js";
 import { broadcastPresence, fetchActiveUsers } from "./services/presenceDataService.js";
-import { fetchCloudData as fetchCloudRecord, queueSaveData } from "./services/sharedDataService.js";
+import { fetchCloudData, fetchCloudData as fetchCloudRecord, queueSaveData } from "./services/sharedDataService.js";
 import { getCurrentUser, getState, setCurrentUser, setCurrentWeek, setState, getCurrentWeek } from "./state/appState.js";
 import { render } from "./ui/render.js";
 import { SUMMARY_TAB_KEY } from "./utils/constant.js";
 
 const getEl = id => document.getElementById(id);
-// Change lines 17-54 in main.js to wrap the UI events in a conditional block:
 
 const ui = {
   userInp: getEl('username-input'),
@@ -18,7 +17,6 @@ const ui = {
   delWeekBtn: getEl('delete-week-btn')
 };
 
-// Only attach event listeners if we are actually on the main syllabus page
 if (ui.authBtn && ui.syncBtn) {
   ui.authBtn.onclick = () => {
     const name = ui.userInp.value.trim();
@@ -85,5 +83,16 @@ setInterval(fetchCloudData, 300000);
 setInterval(broadcastPresence, 60000);
 setInterval(fetchActiveUsers, 30000);
 
-fetchCloudData();
+fetchCloudData()
+  .then(data => {
+    if (!data) {
+      throw new Error("No syllabus data received");
+    }
+
+    setState(data);
+    render();
+  })
+  .catch(error => {
+    console.error("Failed to initialize syllabus:", error);
+  });
 broadcastPresence();

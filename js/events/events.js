@@ -14,7 +14,6 @@ export function setupEvents() {
     const closeDiscussBtn = document.getElementById("close-discuss-btn");
 
     if (discussToggleBtn && discussPanel) {
-        // Ensure we don't attach multiple listeners if setupEvents is called multiple times
         discussToggleBtn.replaceWith(discussToggleBtn.cloneNode(true));
         const newToggleBtn = document.getElementById("mobile-discuss-toggle");
         
@@ -41,12 +40,10 @@ export function setupEvents() {
         });
     }
 
-    // --- DISCUSSION POSTING LOGIC ---
     const postBtn = document.getElementById("post-week-comment-btn");
     const chatInput = document.getElementById("week-discuss-input");
 
     if (postBtn && chatInput) {
-        // Clone elements to clear old event listeners on re-render
         const newPostBtn = postBtn.cloneNode(true);
         postBtn.replaceWith(newPostBtn);
         const newChatInput = chatInput.cloneNode(true);
@@ -56,11 +53,11 @@ export function setupEvents() {
             const text = newChatInput.value.trim();
             if (!text) return;
             
-            addMessage(text); // Save to state
-            newChatInput.value = ''; // Clear input
+            addMessage(text);
+            newChatInput.value = ''; 
             
-            queueSaveData(); // Sync to cloud
-            render(); // Update UI
+            queueSaveData(); 
+            render(); 
         };
 
         newPostBtn.addEventListener("click", handlePost);

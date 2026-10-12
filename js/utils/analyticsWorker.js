@@ -7,7 +7,6 @@ self.onmessage = function(event) {
     let maxDoubts = 0;
     let hotTopic = "None";
 
-    // Filter out metadata like _activeUsers
     const weeks = Object.keys(state).filter(k => k !== '_activeUsers');
 
     weeks.forEach(week => {
@@ -32,7 +31,6 @@ self.onmessage = function(event) {
         });
     });
 
-    // Send the processed analytics back to the main thread
     self.postMessage({
         totalTopics,
         totalSubtopics,

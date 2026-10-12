@@ -36,7 +36,6 @@ function renderWeeks(weekTabs) {
       weekTabs.appendChild(li);
     });
 
-  // Summary Tab
   const summaryUsers = activeUsers.filter(u => u.week === SUMMARY_TAB_KEY);
   const summaryLi = document.createElement('li');
   summaryLi.className = `week-tab summary-tab ${getCurrentWeek() === SUMMARY_TAB_KEY ? 'active' : ''}`;

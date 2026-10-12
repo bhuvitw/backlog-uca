@@ -4,14 +4,12 @@ export function renderDiscussion() {
     const weekLabel = document.getElementById("discuss-week-label");
     const messagesContainer = document.getElementById("discuss-messages");
     
-    // --> ADD THIS SAFETY CHECK <---
     if (!weekLabel || !messagesContainer) {
         return; 
     }
 
     const currentWeek = getCurrentWeek();
 
-    // Update Header
     weekLabel.textContent = currentWeek;
     messagesContainer.innerHTML = '';
 
@@ -25,7 +23,6 @@ export function renderDiscussion() {
 
     const currentUser = getCurrentUser();
 
-    // Render Messages
     discussions.forEach(msg => {
         const isSelf = msg.user === currentUser;
         
@@ -48,6 +45,5 @@ export function renderDiscussion() {
         messagesContainer.appendChild(wrapper);
     });
 
-    // Auto-scroll to the newest message
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }

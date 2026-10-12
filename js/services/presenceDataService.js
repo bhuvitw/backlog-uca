@@ -27,10 +27,8 @@ export async function fetchActiveUsers() {
 }
 
 export async function broadcastPresence() {
-    // Clear previous pending request if user clicks tabs quickly
     if (presenceTimer) clearTimeout(presenceTimer);
 
-    // Wait 1.5 seconds after the last action before sending to the server
     presenceTimer = setTimeout(async () => {
         try {
             const res = await fetch(`${API_URL}/latest`, reqOpts);
@@ -47,7 +45,6 @@ export async function broadcastPresence() {
     }, 1500); 
 }
 
-// ... keep your existing updatePresenceUI(list) function below this ...
 
 function updatePresenceUI(list) {
     const badge = document.getElementById('active-users-badge');

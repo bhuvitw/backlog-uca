@@ -17,7 +17,6 @@ export function render() {
   const deleteWeekBtn = document.getElementById("delete-week-btn");
   const discussionPanel = document.getElementById("discussion-panel");
 
-  // EARLY EXIT: If the main workspace elements don't exist (like on notes.html), stop here.
   if (!topicContainer || !currentWeekTitle) return;
 
   if (userStatus) userStatus.textContent = `User: ${getCurrentUser()}`;
@@ -26,13 +25,12 @@ export function render() {
   if (weekTabs) renderWeeks(weekTabs);
   renderTopics(currentWeekTitle, topicContainer, addTopicBtn, deleteWeekBtn);
 
-  // Hide the discussion panel entirely if we are on the Summary tab
   if (discussionPanel) {
       if (getCurrentWeek() === SUMMARY_TAB_KEY) {
           discussionPanel.style.display = "none";
       } else {
-          discussionPanel.style.display = "flex"; // Reset back to flex layout
-          renderDiscussion(); // Only render discussions for actual weeks
+          discussionPanel.style.display = "flex";
+          renderDiscussion();
       }
   }
 

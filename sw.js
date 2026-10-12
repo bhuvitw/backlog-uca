@@ -8,7 +8,6 @@ const ASSETS_TO_CACHE = [
   './js/notes.js'
 ];
 
-// Install Event: Cache files
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -17,9 +16,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Fetch Event: Serve from cache, fallback to network
 self.addEventListener('fetch', event => {
-  // Skip API requests (let IndexedDB handle JSONBin)
   if (event.request.url.includes('api.jsonbin.io')) return;
 
   event.respondWith(

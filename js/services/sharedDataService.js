@@ -1,6 +1,5 @@
 import { getState } from "../state/appState.js";
 
-// CONFIGURATION: JsonBin credentials
 const JSONBIN_BIN_ID = "6ac82a38ac6210605a210c06";
 const JSONBIN_API_KEY = "\$2a\$10\$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
 const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
@@ -8,7 +7,6 @@ const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 let saveDebounceTimer = null;
 let isCloudDataLoaded = false;
 
-// --- 1. INDEXED DB HELPER FUNCTIONS (Promises) ---
 function initDB() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open('SyllabusDB', 1);
@@ -46,22 +44,18 @@ function getLocalFallback() {
         }
     });
 }
-// --- END INDEXED DB ---
 async function fetchCloudData() {
     try {
-        // 1. Check if we have offline changes waiting to be synced
         if (localStorage.getItem('pending_sync') === 'true') {
             console.log("Unsynced offline changes detected. Loading local data...");
             const localData = await getLocalFallback();
             if (localData) {
                 isCloudDataLoaded = true;
-                // Attempt to push these offline changes to the cloud now
                 queueSaveData(); 
                 return localData;
             }
         }
 
-        // 2. Normal cloud fetch if no pending local changes
         const response = await fetch(`${API_URL}/latest`, {
             headers: { "X-Master-Key": JSONBIN_API_KEY }
         });
@@ -71,7 +65,6 @@ async function fetchCloudData() {
         const data = await response.json(); 
         isCloudDataLoaded = true; 
         
-        // Cache the fresh cloud data to IndexedDB
         await saveLocalFallback(data.record);
         return data.record;
 
@@ -90,7 +83,6 @@ async function fetchCloudData() {
 async function queueSaveData() {
     if (!isCloudDataLoaded) return;
     
-    // Save to IndexedDB immediately and set the pending flag
     await saveLocalFallback(getState());
     localStorage.setItem('pending_sync', 'true');
 
@@ -114,7 +106,6 @@ async function queueSaveData() {
 
             if (!response.ok) throw new Error(`Save failed: ${response.status}`);
             
-            // Sync successful: remove the pending flag
             localStorage.removeItem('pending_sync');
             console.log("Data synced to cloud successfully");
             
@@ -124,18 +115,14 @@ async function queueSaveData() {
     }, 500); 
 }
 
-// js/services/sharedDataService.js ke andar add karo
 
 async function saveLocalOnly() {
     if (!isCloudDataLoaded) return;
     
-    // Sirf IndexedDB mein save karo
     await saveLocalFallback(getState());
     
-    // Flag set karo ki offline changes waiting hain
     localStorage.setItem('pending_sync', 'true');
     
-    // UI mein user ko batao ki doubt locally save ho gaya hai
     const syncBtn = document.getElementById('sync-btn');
     if (syncBtn) {
         syncBtn.textContent = "🟡 Pending (Click to Sync)";
@@ -143,6 +130,5 @@ async function saveLocalOnly() {
     console.log("Minor change (Doubt) saved to IndexedDB only.");
 }
 
-// Ensure you export it at the bottom:
 export { fetchCloudData, queueSaveData, saveLocalOnly };
 
