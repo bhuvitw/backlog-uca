@@ -7,7 +7,7 @@ function renderWeeks(weekTabs) {
   const activeUsers = getActiveUsers();
 
   Object.keys(getState())
-    .filter(key => key !== '_activeUsers')
+    .filter(key => key !== '_')
     .forEach(week => {
       const usersInThisWeek = activeUsers.filter(u => u.week === week);
       const userNamesInThisWeek = usersInThisWeek.map(u => u.name);

@@ -6,66 +6,8 @@ import { getCurrentWeek, getState, setCurrentWeek } from "../state/appState.js";
 import { render } from "../ui/render.js";
 import { updateActivePresence } from "../domain/presence.js";
 import { broadcastPresence } from "../services/presenceDataService.js";
-import { addMessage } from "../domain/discussion.js";
 
 export function setupEvents() {
-    const discussToggleBtn = document.getElementById("mobile-discuss-toggle");
-    const discussPanel = document.getElementById("discussion-panel");
-    const closeDiscussBtn = document.getElementById("close-discuss-btn");
-
-    if (discussToggleBtn && discussPanel) {
-        discussToggleBtn.replaceWith(discussToggleBtn.cloneNode(true));
-        const newToggleBtn = document.getElementById("mobile-discuss-toggle");
-        
-        newToggleBtn.addEventListener("click", () => {
-            const isOpen = discussPanel.classList.contains("open");
-            if (isOpen) {
-                discussPanel.classList.remove("open");
-                newToggleBtn.innerHTML = "💬 Discussion";
-            } else {
-                discussPanel.classList.add("open");
-                newToggleBtn.innerHTML = "✖ Close";
-            }
-        });
-    }
-
-    if (closeDiscussBtn && discussPanel) {
-        closeDiscussBtn.replaceWith(closeDiscussBtn.cloneNode(true));
-        const newCloseBtn = document.getElementById("close-discuss-btn");
-        
-        newCloseBtn.addEventListener("click", () => {
-            discussPanel.classList.remove("open");
-            const newToggleBtn = document.getElementById("mobile-discuss-toggle");
-            if(newToggleBtn) newToggleBtn.innerHTML = "💬 Discussion";
-        });
-    }
-
-    const postBtn = document.getElementById("post-week-comment-btn");
-    const chatInput = document.getElementById("week-discuss-input");
-
-    if (postBtn && chatInput) {
-        const newPostBtn = postBtn.cloneNode(true);
-        postBtn.replaceWith(newPostBtn);
-        const newChatInput = chatInput.cloneNode(true);
-        chatInput.replaceWith(newChatInput);
-
-        const handlePost = () => {
-            const text = newChatInput.value.trim();
-            if (!text) return;
-            
-            addMessage(text);
-            newChatInput.value = ''; 
-            
-            queueSaveData(); 
-            render(); 
-        };
-
-        newPostBtn.addEventListener("click", handlePost);
-        newChatInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") handlePost();
-        });
-    }
-    
     document.querySelectorAll(".topic-input").forEach(el => el.addEventListener("change", e => {
         updateTopicTitle(Number(e.target.dataset.topicIndex), e.target.value);
         queueSaveData();

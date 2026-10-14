@@ -7,7 +7,7 @@ self.onmessage = function(event) {
     let maxDoubts = 0;
     let hotTopic = "None";
 
-    const weeks = Object.keys(state).filter(k => k !== '_activeUsers');
+    const weeks = Object.keys(state).filter(k => k !== '_');
 
     weeks.forEach(week => {
         state[week].forEach(topic => {

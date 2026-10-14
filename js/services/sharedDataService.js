@@ -112,7 +112,7 @@ async function queueSaveData() {
         } catch (error) {
             console.error("Cloud save failed, but data is safe in IndexedDB.", error); 
         }
-    }, 500); 
+    }, 3000); 
 }
 
 

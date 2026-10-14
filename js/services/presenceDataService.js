@@ -42,7 +42,7 @@ export async function broadcastPresence() {
         } catch (err) {
             console.warn("Presence broadcast paused due to API limits.");
         }
-    }, 1500); 
+    }, 4000); 
 }
 
 

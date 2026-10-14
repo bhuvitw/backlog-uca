@@ -30,7 +30,7 @@ function renderSyllabusSummaryDashboard(topicContainer) {
   }
 
   (Object.keys(getState()))
-    .filter(k => k !== '_activeUsers')
+    .filter(k => k !== '_')
     .forEach(week => {
       const weekSection = document.createElement('div');
       weekSection.className = 'summary-week-section';

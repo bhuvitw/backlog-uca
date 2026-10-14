@@ -58,12 +58,12 @@ if (ui.authBtn && ui.syncBtn) {
             }
         }
 
-        const keys = Object.keys(getState()).filter(k => k !== '_activeUsers');
+        const keys = Object.keys(getState()).filter(k => !k.startsWith('_'));
         if (keys.length <= 1) return alert("Cannot delete the last week!");
 
         if (confirm(`Delete ${getCurrentWeek()}?`)) {
           delete getState()[getCurrentWeek()];
-          setCurrentWeek(Object.keys(getState()).filter(k => k !== '_activeUsers')[0] || "Week 1");
+          setCurrentWeek(Object.keys(getState()).filter(k => !k.startsWith('_'))[0] || "Week 1");
           queueSaveData();
           render();
         }
@@ -80,8 +80,8 @@ if (ui.authBtn && ui.syncBtn) {
 }
 
 setInterval(fetchCloudData, 300000);
-setInterval(broadcastPresence, 60000);
-setInterval(fetchActiveUsers, 30000);
+setInterval(broadcastPresence, 1800000);
+setInterval(fetchActiveUsers, 120000);
 
 fetchCloudData()
   .then(data => {
