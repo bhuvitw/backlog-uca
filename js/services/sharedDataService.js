@@ -1,7 +1,7 @@
 import { getState } from "../state/appState.js";
 
-const JSONBIN_BIN_ID = "6ac82a38ac6210605a210c06";
-const JSONBIN_API_KEY = "\$2a\$10\$MtvaDn4Utk.fuBQ08te0y.o4CAvIZpaFb5amKJFIB3hLC6uxJytHq";
+const JSONBIN_BIN_ID = "6acf23fbffd5d16053698b30";
+const JSONBIN_API_KEY = "\$2a\$10\$bQ90MfmIU5FzIzXgm.159uTDhxj2rX.ikVAWcHlYwN.6WryOS.3Cm";
 const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 let saveDebounceTimer = null;
